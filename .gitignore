@@ -1,5 +1,5 @@
-plots/
-lrtRecords/
-TextFiles/
+plots/**
+lrtRecords/**
+TextFiles/**
 bashFiles/getLrtData.sh
 bashFiles/pullfiles.sh
