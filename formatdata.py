@@ -123,8 +123,10 @@ class Data():
                     lambda x:
                     float((datetime.strptime(x, '%j:%H:%M:%S') - t
                           ).total_seconds()))
-
-            self.time = data_frame.time/3600
+            if hour:
+                self.time = data_frame.time/60
+            else:
+                self.time = data_frame.time/3600
             self.raw = [data_frame.x,
                         data_frame.y,
                         data_frame.z,
