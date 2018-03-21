@@ -1,4 +1,4 @@
-wing is a breif explanation of the file formating for LRT.tdms filesand an explanation of the the import python files
+The following is a breif explanation of the file formating for LRT.tdms filesand an explanation of the the import python files
 
 By using the package `npTDMS` (an addition to numpy package) we can read the `.tdms` file type.
 The values can be reached refering to a specific node on the tree. A tdms file is broken up into different types of objects;the root object, the group object, and the channel object. 
