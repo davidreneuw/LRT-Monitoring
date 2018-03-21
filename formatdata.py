@@ -222,12 +222,12 @@ class Data():
         """
         #data points = samp_freq*60*24
         skip = int(self.hour) * 60 * 60 * self.samp_freq
-        upto = skip+self.samp_freq * 60 * 60
+        upto = skip + self.samp_freq * 60 * 60
 
         for iterate in range(len(self.data)):
             self.data[iterate] = self.data[iterate][skip:upto]
 
-        self.time = self.time[skip:upto] - int(self.hour)
+        self.time = self.time[skip:upto] - int(self.hour)*60
 
     def chop(self, chop1, chop2):
         """Chops of the ends of the axis to make them a certain range"""
