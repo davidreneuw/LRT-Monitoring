@@ -186,8 +186,6 @@ def plot(mode, loc, date, samp_freq, hour=None):
     
 
     #---CALC SPIKES IF WANTED---#
-    if mode == 'v32Hz' or mode == 'v100Hz':
-        ott.time = ott.time * 60
 
     logger.info('Reformated Data')
 
@@ -209,8 +207,8 @@ def plot(mode, loc, date, samp_freq, hour=None):
 
 
         if mode == 'v32Hz' or mode == 'v100Hz':
-            axes[k].plot(lrt.spikes[k][0], lrt.spikes[k][1],
-                         'gx', markersize=9, alpha=.5)
+            axes[k].plot(lrt.spikes[k][0], lrt.spikes[k][1]-lrt.avg[k],
+                         'gx', markersize=10, alpha=.75)
 
         # y axis scale
         axis.yaxis(lrt.data[k], ott.data[k])
@@ -250,7 +248,7 @@ def __auto__(xback=0):
                date2.d
               )
     try:
-        hourly_times_file ='lrtRecords/lrtRecords%s%s.txt'%(date2.m, date2.d)
+        hourly_times_file ='/home/akovachi/lrt_data/lrtRecords/lrtRecords%s%s.txt'%(date2.m, date2.d)
         if os.path.isfile(hourly_times_file):
             hourly_times = pd.read_csv(hourly_times_file,sep=' ')
             hourly_times.drop(['YYYY', 'MM', 'DD', 'MI', 'D', 'MAG'], axis=1)
