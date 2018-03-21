@@ -1,4 +1,3 @@
-
 wing is a breif explanation of the file formating for LRT.tdms filesand an explanation of the the import python files
 
 By using the package `npTDMS` (an addition to numpy package) we can read the `.tdms` file type.
@@ -10,13 +9,13 @@ The group and channel objects are related. The group object defines the type ofd
 For example:
 Suppose you had a device that recorded 100Hz and 32Hz with 2 channels.Then you would be able to look up data under
 
-<'100Hz','channel 1'>
+<'100Hz', 'channel 1'>
 
-<'100Hz','channel 2'>
+<'100Hz', 'channel 2'>
 
-<'32Hz  ,'channel 1'>
+<'32Hz', 'channel 1'>
 
-<'32Hz' ,'channel 2'>
+<'32Hz', 'channel 2'>
 
 and each would have their own set of data.
 
@@ -36,7 +35,7 @@ Specifics:
 
 -32Hz  files are in the Serial Folder
 
-- 100Hz files are in the Analog folder
+-100Hz files are in the Analog folder
 
 ## Python scripts overview
 
