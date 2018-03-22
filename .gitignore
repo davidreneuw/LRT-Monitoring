@@ -3,3 +3,4 @@ lrtRecords/**
 TextFiles/**
 bashFiles/getLrtData.sh
 bashFiles/pullfiles.sh
+ottSecData/**
