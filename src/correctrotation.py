@@ -8,6 +8,7 @@ import logging
 # Third party packages
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 class DataAreNotSameLength(Exception):
     """ Custom Exception"""
@@ -50,6 +51,9 @@ def rotate(data1, data2, make_plot=False, entire=False):
             rot_matrix = create_rot_matrix(data2[iterate], data1[iterate])
             data1[iterate] = np.matmul(data1[iterate], rot_matrix)
 
+        data1 = data1.transpose()
+        data2 = data2.transpose()
+
     else:
         rot_matrix = create_rot_matrix(
             np.array([data1[0].mean(),
@@ -62,6 +66,10 @@ def rotate(data1, data2, make_plot=False, entire=False):
         
         data1 = np.matmul(data1.transpose(), rot_matrix).transpose()
 
+    if make_plot:
+        for iterate in range(len(data1)):
+            plt.plot(data1[iterate]-data2[iterate])
+            plt.show()
     print(data1)
 
 def dec_inc_to_abs(dec_inc):
