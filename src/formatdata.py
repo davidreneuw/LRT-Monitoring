@@ -136,7 +136,7 @@ class Data():
             self.file = TdmsFile(self.file)
             time = self.file.object(self.filetype, 'sec of day').data/60
             self.time = time-int(self.hour)*60
-            self.raw = [self.file.object(self.filetype, 'channel 1').data, 
+            self.raw = [self.file.object(self.filetype, 'channel 1').data,
                         self.file.object(self.filetype, 'channel 2').data,
                         self.file.object(self.filetype, 'channel 3').data,
                         self.file.object(self.filetype, 'channel 4').data]
@@ -168,7 +168,7 @@ class Data():
                                              mode='valid')
 
             self.raw[iterate] = self.raw[iterate][int(time/2):-int(time/2)+1]
-            
+
         self.ppm = self.ppm[int(time/2):-int(time/2)+1]
         self.time = self.time[int(time/2):-int(time/2)+1]
 
@@ -234,7 +234,7 @@ class Data():
 
         for iterate in range(len(self.data)):
             self.data[iterate] = self.data[iterate][chop1:-chop2]
-            
+
         self.time = self.time[chop1:-chop2]
 
         if self.Fstar:
@@ -342,14 +342,15 @@ class GetTdms():
 
         if ppm:
             my_file = ('/home/dcalp/lrt/{0}/Serial/' +
-                    '{1}/{0}{1}{2}{3}v1sec.tdms').format(loc, date.y,
-                                                       date.m, date.d)
+                       '{1}/{0}{1}{2}{3}v1sec.tdms').format(loc, date.y,
+                                                            date.m, date.d)
 
         else:
             my_file = ('/home/dcalp/lrt/{0}/Serial/' +
-                    '{1}/{0}{1}{2}{3}[{4}]v32Hz.tdms').format(loc, date.y,
-                                                            date.m, date.d,
-                                                            hour)
+                       '{1}/{0}{1}{2}{3}[{4}]v32Hz.tdms').format(loc, date.y,
+                                                                 date.m,
+                                                                 date.d,
+                                                                 hour)
 
         self.file = TdmsFile(my_file)
 
@@ -403,12 +404,12 @@ def get_std_dev(raw_data, smooth_data, samp_freq, sigma=4.0):
     # makes an array of all (x,y) points that are outside
     # of the std deviation
     return np.array([
-        [np.nan,np.nan],
+        [np.nan, np.nan],
         *[(num / samp_freq / 60, raw_data[num])
-        for num in range(len(smooth_data))
-        if ((raw_data[num] > (smooth_data[num] + (sigma*std))) or
-            (raw_data[num] < (smooth_data[num] - (sigma*std))))
-                    ]]).transpose()
+          for num in range(len(smooth_data))
+          if ((raw_data[num] > (smooth_data[num] + (sigma*std))) or
+              (raw_data[num] < (smooth_data[num] - (sigma*std))))
+         ]]).transpose()
 
 
 
@@ -468,10 +469,10 @@ def resample_data(data, desired):
     nextpow2 = np.power(2, thispow2 + 1)
 
     data = np.lib.pad(
-        data, 
+        data,
         (0, int(nextpow2 - len_old)),
         mode='constant', constant_values=(0, 0)
-                     )
+        )
 
     len_new = len(data)
     resample = int(np.ceil(desired * len_new / len_old))
@@ -484,6 +485,6 @@ def make_files(year, month, day):
     at the chosen location
     """
     for loc in ['LRE', 'LRO', 'LRS']:
-        subprocess.call(['mkdir', '-p', '/home/akovachi/lrt_data/plots' +
-                                        '/%s/%s/%s/%s'
-                                        %(loc, year, month, day)])
+        subprocess.call(['mkdir', '-p',
+                         '/home/akovachi/lrt_data/plots/%s/%s/%s/%s'%(
+                             loc, year, month, day)])

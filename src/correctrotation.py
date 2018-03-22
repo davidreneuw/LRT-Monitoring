@@ -1,6 +1,6 @@
 """
 This script is used to attempt to rotate lrt stations such that they are alligned
-with and declared correct orientation. The inputed direction can be either a 
+with and declared correct orientation. The inputed direction can be either a
 declination & inclination pair or a group of X, Y, and Z measurments
 """
 import argparse
@@ -16,7 +16,7 @@ class DataAreNotSameLength(Exception):
 
 
 def rotate(data1, data2, make_plot=False, entire=False):
-    """ 
+    """
     Rotates data1 to be in the same orientation of data2
 
     :type data1: List of [np.array, np.array, np.array]
@@ -30,8 +30,8 @@ def rotate(data1, data2, make_plot=False, entire=False):
 
     :type entire: Boolean
     :param entire: Rotate each point individualy
-    """ 
-    
+    """
+
     if len(data2) == 2:
         data2 = dec_inc_to_abs(data2)
 
@@ -63,7 +63,7 @@ def rotate(data1, data2, make_plot=False, entire=False):
                       data2[1].mean(),
                       data2[2].mean()])
             )
-        
+
         data1 = np.matmul(data1.transpose(), rot_matrix).transpose()
 
     if make_plot:
@@ -107,12 +107,12 @@ def create_rot_matrix(desired, current):
     rot_matrix = (identity +
                   scew_sym_matrix +
                   scew_sym_matrix_sqr*(1-cos_phi)/(sin_phi)**2)
- 
+
     return rot_matrix
 
 def main():
     """Main routine"""
-    
+
     parser = argparse.ArgumentParser(
         description="Rotate lrt site to desired format")
     parser.add_argument(
@@ -130,7 +130,7 @@ def main():
     args = parser.parse_args()
 
     data1 = pd.read_fwf(args.d, header=None,
-                        names=['year', 'time', 'doy', 
+                        names=['year', 'time', 'doy',
                                'x', 'y', 'z', 'f*', 'f'])
     data2 = pd.read_fwf(args.dd, header=None,
                         names=['loc', 'year', 'time',
