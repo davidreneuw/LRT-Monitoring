@@ -34,7 +34,7 @@ from formatdata import Data, Date, make_files # custom
 
 
 # Creates logger
-date = Date(1)
+date = Date(0)
 logging.filename = '/home/akovachi/lrt_data/log/graphing/graphing%s%s.log'%(
         date.m,date.d)
 logging.config.fileConfig('/home/akovachi/lrt_data/logging.conf')

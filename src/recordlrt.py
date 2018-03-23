@@ -15,7 +15,7 @@ import numpy as np
 from formatdata import Date, Data, get_std_dev
 
 # Creates logger
-date = Date(1)
+date = Date(0)
 logging.filename = '/home/akovachi/lrt_data/log/recordlrt/recordlrt%s%s.log'%(
         date.m,date.d)
 logging.config.fileConfig('/home/akovachi/lrt_data/logging.conf')

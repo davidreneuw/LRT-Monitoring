@@ -10,7 +10,7 @@ from formatdata import MakeData, Date, GetTdms
 
 
 # Creates logger
-date = Date(1)
+date = Date(0)
 logging.filename = '/home/akovachi/lrt_data/log/rt1hz/rt1hz%s%s.log'%(
         date.m,date.d)
 logging.config.fileConfig('/home/akovachi/lrt_data/logging.conf')
