@@ -31,7 +31,7 @@ def rotate(data1, data2, make_plot=False, entire=False):
     :type entire: Boolean
     :param entire: Rotate each point individualy
     """
-
+    raw = data1
     if len(data2) == 2:
         data2 = dec_inc_to_abs(data2)
 
@@ -68,7 +68,9 @@ def rotate(data1, data2, make_plot=False, entire=False):
 
     if make_plot:
         for iterate in range(len(data1)):
-            plt.plot(data1[iterate]-data2[iterate])
+            plt.plot(raw[iterate])
+            plt.plot(data1[iterate])
+            plt.plot(data2[iterate])
             plt.show()
     print(data1)
 
