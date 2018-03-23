@@ -33,13 +33,20 @@ def rotate(data1, data2, make_plot=False, entire=False):
     """
     raw = data1
     if len(data2) == 2:
+        # Change from dec/inc to absolute
         data2 = dec_inc_to_abs(data2)
 
     if not type(data1) is np.ndarray or not len(data1) == 3:
+        # Change to np array of 3 columns
         data1 = np.array([data1[0], data1[1], data1[2]])
         data2 = np.array([data2[0], data2[1], data2[2]])
 
     if entire:
+        '''
+        Data is given in the form [[x1... xn], [y1... yn], [z1... zn]]
+        and we need the form of [[x1 y1 z1]... [xn yn zn]]
+        so we transpose the data
+        '''
         data1 = data1.transpose()
         data2 = data2.transpose()
 
@@ -51,17 +58,19 @@ def rotate(data1, data2, make_plot=False, entire=False):
             rot_matrix = create_rot_matrix(data2[iterate], data1[iterate])
             data1[iterate] = np.matmul(data1[iterate], rot_matrix)
 
+        # Return to original formatting
         data1 = data1.transpose()
         data2 = data2.transpose()
 
     else:
+        # I.e. rotate using daily average
         rot_matrix = create_rot_matrix(
-            np.array([data1[0].mean(),
-                      data1[1].mean(),
-                      data1[2].mean()]),
             np.array([data2[0].mean(),
                       data2[1].mean(),
-                      data2[2].mean()])
+                      data2[2].mean()]),
+            np.array([data1[0].mean(),
+                      data1[1].mean(),
+                      data1[2].mean()])
             )
 
         data1 = np.matmul(data1.transpose(), rot_matrix).transpose()
@@ -87,9 +96,12 @@ def dec_inc_to_abs(dec_inc):
 
 def create_rot_matrix(desired, current):
     """ Creates a rotation matrix from two vectors"""
+
+    # Create unit vector
     desired = desired/np.linalg.norm(desired)
     current = current/np.linalg.norm(current)
 
+    # Create needed terms
     cross = np.cross(desired, current)
 
     sin_phi = np.linalg.norm(cross)
@@ -97,7 +109,7 @@ def create_rot_matrix(desired, current):
 
     scew_sym_matrix = np.array([
         [0, -cross[2], cross[1]],
-        [ cross[2], 0, cross[0]],
+        [cross[2], 0, -cross[0]],
         [-cross[1], cross[0], 0]])
 
     scew_sym_matrix_sqr = np.linalg.matrix_power(scew_sym_matrix, 2)
@@ -106,6 +118,7 @@ def create_rot_matrix(desired, current):
                          [0, 1, 0],
                          [0, 0, 1]])
 
+    # Create rotation matrix
     rot_matrix = (identity +
                   scew_sym_matrix +
                   scew_sym_matrix_sqr*(1-cos_phi)/(sin_phi)**2)
