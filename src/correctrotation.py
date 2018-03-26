@@ -15,7 +15,7 @@ class DataAreNotSameLength(Exception):
     pass
 
 
-def rotate(data1, data2, make_plot=False, entire=False):
+def rotate(data1, data2, make_plot=False, entire=False, save_matrix=False):
     """
     Rotates data1 to be in the same orientation of data2
 
@@ -53,10 +53,18 @@ def rotate(data1, data2, make_plot=False, entire=False):
         if not len(data1) == len(data2):
             raise DataAreNotSameLength(('Length (%s)'%(len(data1)) +
                                         'does not match (%s)'%(len(data2))))
-
-        for iterate in range(len(data1)):
-            rot_matrix = create_rot_matrix(data2[iterate], data1[iterate])
-            data1[iterate] = np.matmul(data1[iterate], rot_matrix)
+        if save_matrix:        
+            with open('savevars.txt', 'w') as db:
+                for iterate in range(len(data1)):
+                    rot_matrix = create_rot_matrix(data2[iterate], data1[iterate])
+                    data1[iterate] = np.matmul(data1[iterate], rot_matrix)
+                    db.write('{:.5f} {:.5f} {:.5f}\n'.format(rot_matrix[0,1], 
+                                                             rot_matrix[0,2],
+                                                             rot_matrix[1,2]))
+        else:
+            for iterate in range(len(data1)):
+                rot_matrix = create_rot_matrix(data2[iterate], data1[iterate])
+                data1[iterate] = np.matmul(data1[iterate], rot_matrix)
 
         # Return to original formatting
         data1 = data1.transpose()
@@ -74,12 +82,14 @@ def rotate(data1, data2, make_plot=False, entire=False):
             )
 
         data1 = np.matmul(data1.transpose(), rot_matrix).transpose()
+        print(rot_matrix)
 
     if make_plot:
         for iterate in range(len(data1)):
-            plt.plot(raw[iterate])
-            plt.plot(data1[iterate])
             plt.plot(data2[iterate])
+            plt.plot(data1[iterate])
+            plt.show()
+            plt.plot(data1[iterate]-data2[iterate])
             plt.show()
     print(data1)
 
@@ -137,6 +147,9 @@ def main():
         '-p', '--plot',
         action='store_true', help='Display plot')
     parser.add_argument(
+        '-s', '--savematrix',
+        action='store_true', help='Save each matrix created variables')
+    parser.add_argument(
         '-d',
         help='Data to be rotated location')
     parser.add_argument(
@@ -160,7 +173,15 @@ def main():
              data2.z,
              data2.f]
 
-    rotate(data1, data2, getattr(args, 'plot'), getattr(args, 'entire'))
+    for iterate in range(len(data1)):
+                data1[iterate] = np.convolve(data1[iterate], np.ones(30)/30, mode='valid')
+                data2[iterate] = np.convolve(data2[iterate], np.ones(30)/30, mode='valid')
+
+    rotate(data1, data2, 
+           getattr(args, 'plot'), 
+           getattr(args, 'entire'),
+           getattr(args, 'savematrix'))
+
 
 if __name__ == '__main__':
     main()
