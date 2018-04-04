@@ -108,7 +108,7 @@ class AxisGet():
                                 self.y_max+1,
                                 self.y_max/5) # y ticks
 
-def plot(mode, loc, date, samp_freq, hour=None):
+def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
     """
     Creates varying types of plots depending on the types specified
 
@@ -173,9 +173,14 @@ def plot(mode, loc, date, samp_freq, hour=None):
     names = ['X', 'Y', 'Z', 'F*', 'F-F*']
 
     if  mode == 'v32Hz' or mode == 'v100Hz':
-        plots, scale, span = 3, 'Min', ('Hour '+'%02d'%(hour)+'00')
+        scale, span = 'Min', ('Hour '+'%02d'%(hour)+'00')
     else:
-        plots, scale, span = 4, 'Hour', 'Whole Day'
+        scale, span = 'Hour', 'Whole Day'
+
+    if ffstar:
+        plots = 5
+    else:
+        plots = 4
 
     fig, axes = plt.subplots(plots, figsize=config.size)
     fig.text(.5, .04, 'Time(%s)'%(scale), ha='center', va='center')
@@ -192,7 +197,7 @@ def plot(mode, loc, date, samp_freq, hour=None):
 
     #---PLOT MAKING---#
 
-    for k in range(plots):
+    for k in range(4):
         axes[k].plot(lrt.time, lrt.data[k], 'b-',
                      label='{} Data {}'.format(loc, lrt.avg[k]))
         logger.info('Plotted %s', loc)
@@ -210,7 +215,11 @@ def plot(mode, loc, date, samp_freq, hour=None):
         if mode == 'v32Hz' or mode == 'v100Hz':
             axes[k].plot(lrt.spikes[k][0], lrt.spikes[k][1]-lrt.avg[k],
                          'gx', markersize=10, alpha=.75)
+    if ffstar:
+        axes[4].plot(lrt.time, lrt.ffstar,
+                     label='F-F*')
 
+    for k in range(4):
         # y axis scale
         axis.yaxis(lrt.data[k], ott.data[k])
         axes[k].set_yticks(axis.y_tick)
@@ -277,7 +286,7 @@ def __auto__(xback=0):
     #---DAYPLOT---#
     for loc in ['LRE', 'LRO', 'LRS']:
         try:
-            plot('secNew', loc, date2, 1)
+            plot('secNew', loc, date2, 1, ffstar=True)
 
         except FailedToCollectDataError as err:
             logger.error(err)
