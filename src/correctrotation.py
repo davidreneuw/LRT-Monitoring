@@ -73,7 +73,8 @@ def create_rot_matrix(desired, current):
     return rot_matrix
 
 def rotate_to_abs(data1, data2, make_plot=False, 
-                  entire=False, save_matrix=False, dec_inc=None):
+                  entire=False, save_matrix=False, 
+                  dec=None, inc=None):
     """
     Rotates data1 to be in the same orientation of data2
 
@@ -90,9 +91,9 @@ def rotate_to_abs(data1, data2, make_plot=False,
     :param entire: Rotate each point individualy
     """
     raw = np.copy(data1)
-    if  dec_inc:
+    if  dec:
         # Change from dec/inc to absolute
-        dec_inc = dec_inc_to_abs(dec_inc)
+        dec_inc = dec_inc_to_abs([dec, inc])
 
     if len(data2) == 4:
         data2[3] = np.sqrt(data2[0]**2 + data2[1]**2 + data2[2]**2)
@@ -115,29 +116,15 @@ def rotate_to_abs(data1, data2, make_plot=False,
         if not len(data1) == len(data2):
             raise DataAreNotSameLength(('Length (%s)'%(len(data1)) +
                                         'does not match (%s)'%(len(data2))))
-        if save_matrix:        
-            with open('savevars.txt', 'w') as db:
-                for iterate in range(len(data1)):
-                    if dec_inc:
-                        rot_matrix = create_rot_matrix(dec_inc, 
-                                                       data1[iterate])
-                    else:
-                        rot_matrix = create_rot_matrix(data2[iterate], 
-                                                       data1[iterate])
+        for iterate in range(len(data1)):
+            if dec:
+                rot_matrix = create_rot_matrix(dec_inc, 
+                                               data1[iterate])
+            else:
+                rot_matrix = create_rot_matrix(data2[iterate], 
+                                               data1[iterate])
 
-                    data1[iterate] = np.matmul(data1[iterate], rot_matrix)
-                    db.write('{:.5f} {:.5f} {:.5f}\n'.format(rot_matrix[0,1], 
-                                                             rot_matrix[0,2],
-                                                             rot_matrix[1,2]))
-        else:
-            for iterate in range(len(data1)):
-                if dec_inc:
-                    rot_matrix = create_rot_matrix(dec_inc, 
-                                                   data1[iterate])
-                else:
-                    rot_matrix = create_rot_matrix(data2[iterate], 
-                                                       data1[iterate])
-                data1[iterate] = np.matmul(data1[iterate], rot_matrix)
+            data1[iterate] = np.matmul(data1[iterate], rot_matrix)
 
         # Return to original formatting
         data1 = data1.transpose()
@@ -145,7 +132,7 @@ def rotate_to_abs(data1, data2, make_plot=False,
 
     if True:
         # I.e. rotate using daily average
-        if dec_inc:
+        if dec:
             rot_matrix = create_rot_matrix(dec_inc, 
                                            np.array([raw[0].mean(),
                                                      raw[1].mean(),
@@ -169,9 +156,8 @@ def rotate_to_abs(data1, data2, make_plot=False,
 
         fig, ax = plt.subplots(3, figsize=(15, 45))
         for iterate in range(3):
-            ax[iterate].plot(x, (data2[iterate] - data1[iterate]) +
-                                 data3[iterate] - data2[iterate],
-                             label='final change')
+            ax[iterate].plot(x, (data3[iterate]))
+            ax[iterate].plot(x, (data2[iterate]))
         plt.show()
 
 def rotate_by_deg(data1, dec, inc, plot=False, ref_data=None, 
@@ -183,25 +169,28 @@ def rotate_by_deg(data1, dec, inc, plot=False, ref_data=None,
         data1 = np.array([data1[0], data1[1], data1[2]])
 
     raw = np.copy(data1)
+
     if iterate:
+        # Creates the different rotations to be tested
         num_bins = iterate
         dec_rot = np.linspace(dec, -dec, num_bins)
         inc_rot = np.linspace(inc, -inc, num_bins)
+        # Initiate the different arrays
         intensity = np.array([[], [], []])
         intensity_here = [0, 0, 0]
 
         for rot_inc in inc_rot:
             for rot_dec in dec_rot:
-                rot_matrix = create_rot_deg(rot_dec, 0)
+                # Rotate data
+                rot_matrix = create_rot_deg(rot_dec, rot_inc)
                 data = np.matmul(raw.transpose(), rot_matrix).transpose()
-                rot_matrix = create_rot_deg(0, rot_inc)
-                data = np.matmul(data.transpose(), rot_matrix).transpose()
-
                 diff = np.copy(ref_data)
 
                 for axis in range(3):
-                    diff[axis] = diff[axis] - data[axis]
-                    intensity_here[axis] = diff[axis].mean()
+                    intensity_here[axis] = (diff[axis] - 
+                                            data[axis])
+
+                    intensity_here[axis] = intensity_here[axis].mean()
 
                 intensity = np.append(intensity, 
                                       [[intensity_here[0]],
@@ -209,51 +198,56 @@ def rotate_by_deg(data1, dec, inc, plot=False, ref_data=None,
                                        [intensity_here[2]]],
                                       axis=1
                                        )
+
+        # Normalize axis so all are considered equal
         if axis_equality:
             for i in range(3):
-                intensity[i] = intensity[i]/np.max(np.abs(intensity[i]))
-            intensity = np.sqrt(intensity[0]**2 +
-                                intensity[1]**2 +
+                intensity[i] = (np.absolute(intensity[i]) /
+                                np.max(np.abs(intensity[i])))
+            intensity = np.sqrt(intensity[0]**2 *
+                                intensity[1]**2 *
                                 intensity[2]**2)
             intensity = intensity/np.max(np.abs(intensity))
 
+        # Take the absolute difference)
         else:
-            print(intensity)
-            intensity = np.sqrt(intensity[0]**2 +
-                                intensity[1]**2 +
-                                intensity[2]**2)
+             for i in range(3):
+                intensity[i] = np.absolute(intensity[i])
+             intensity = np.sqrt(intensity[0]**2 +
+                                 intensity[1]**2 +
+                                 intensity[2]**2)
+        # Reshape data to be in the correct bins
         intensity = np.absolute(intensity).reshape(num_bins, num_bins)
-
-        plt.imshow(intensity, extent=(np.amin(dec_rot), np.amax(dec_rot),
-                                      np.amin(inc_rot), np.amax(inc_rot)),
-                   norm=LogNorm(), cmap=cm.jet)
-        plt.colorbar()
-        plt.scatter(0, 0, marker='+')
-        plt.show()
+        
+        if plot:
+            plt.imshow(intensity, extent=(np.amin(dec_rot), np.amax(dec_rot),
+                                          np.amin(inc_rot), np.amax(inc_rot)),
+                       norm=LogNorm(), cmap=cm.jet)
+            plt.xlabel('Declination(rad)')
+            plt.ylabel('Inclination(rad)')
+            plt.title('LRS plot accuracy')
+            plt.colorbar()
+            plt.scatter(0, 0, marker='+')
+            plt.show()
                     
-
-
+    # Rotate and show the data
     else:
         rot_matrix = create_rot_deg(dec, inc)
         data1 = np.matmul(data1.transpose(), rot_matrix).transpose()
 
         if plot:
             x = np.arange(len(data1[0])) / 3600
-            fig, ax = plt.subplots(3, figsize=(15, 45))
-            plt.title(str(dec)+str(inc))
-            mean1=0
-            mean2=0
-            for iterate in range(3):
-                ax[iterate].plot(x, data1[iterate], label='rotated')
-                ax[iterate].plot(x, raw[iterate], label='raw')
-                ax[iterate].plot(x, ref_data[iterate], label='ott')
-                ax[iterate].legend()
-                mean1 +=((data1[iterate]-ref_data[iterate]).mean())
-                mean2 +=((raw[iterate]-ref_data[iterate]).mean())
-            print(mean1)
-            print(mean2)
-            plt.show()
+            fig, ax = plt.subplots(3, figsize=(15, 15))
+            ax[0].set_title('LRS axis differences after rotation')
+            axis=['X', 'Y', 'Z'] 
 
+            for iterate in range(3):
+                ax[iterate].plot(x, data1[iterate]-ref_data[iterate], 
+                                 label='Rotated-OTT', color='r')
+                ax[iterate].legend(loc=1)
+                ax[iterate].set_ylabel(axis[iterate])
+            ax[2].set_xlabel('Time(h)')
+            plt.show()
 
 def main():
     """Main routine"""
@@ -270,6 +264,9 @@ def main():
         '-s', '--savematrix',
         action='store_true', help='Save each matrix created variables')
     parser.add_argument(
+        '-m', '--usematrix',
+        action='store_true', help='Use matrix for rotation')
+    parser.add_argument(
         '-N', '--numberbins',
         default=0,
         type=int,
@@ -285,11 +282,16 @@ def main():
         default=None,
         help='Inclination to use if rotating by angles')
     parser.add_argument(
-        '-d', '--day') 
-    # TODO: add day commands
+        '-f1', '--file1',
+        nargs='+',
+        help='Files to be parsed in dir1')
+    parser.add_argument(
+        '-f2', '--file2',
+        nargs='+',
+        help='Files to be parsed in dir2')
     parser.add_argument(
         '-dir1',
-        default='/home/dcalp/lrt/LRE/RT1Hz/',
+        default='/home/dcalp/lrt/LRS/RT1Hz/',
         help='Data to be rotated')
     parser.add_argument(
         '-dir2',
@@ -299,9 +301,9 @@ def main():
 
     allFiles1 = []
     allFiles2 = []
-    for day, doy in zip(['19'],['078']):
-        allFiles1.append(args.dir1+'LRE201803%svsec.sec'%(day))
-        allFiles2.append(args.dir2+'OTT2018%s.sec'%(doy))
+    for file1, file2 in zip(args.f1, args.f2):
+        allFiles1.append(args.dir1+file1)
+        allFiles2.append(args.dir2+file2)
     
     df_from_each_file = (pd.read_fwf(
         f, names=['date', 'time', 'doy','x', 'y', 'z', 'f']) for f in allFiles1)
@@ -318,19 +320,25 @@ def main():
              data2.z,
              data2.f]
 
-    rotate_by_deg(data1,
-                  dec=getattr(args,'declination'),
-                  inc=getattr(args,'inclination'), 
-                  plot=True,
-                  ref_data=data2,
-                  iterate=getattr(args, 'numberbins'),
-                  axis_equality=False) 
-    #rotate(data1,
-    #       data2, 
-    #       getattr(args, 'plot'), 
-    #       getattr(args, 'entire'),
-    #       getattr(args, 'savematrix'),
-    #       None)
+    if getattr(args, 'usematrix'):
+        rotate_to_abs(data1,
+               data2, 
+               getattr(args, 'plot'), 
+               getattr(args, 'entire'),
+               getattr(args, 'savematrix'),
+               dec=getattr(args, 'declination'),
+               inc=getattr(args, 'inclination'), 
+               )
+
+    else:
+        rotate_by_deg(data1,
+                      dec=getattr(args, 'declination'),
+                      inc=getattr(args, 'inclination'), 
+                      plot=True,
+                      ref_data=data2,
+                      iterate=getattr(args, 'numberbins'),
+                      axis_equality=False) 
+        
 
 
 if __name__ == '__main__':

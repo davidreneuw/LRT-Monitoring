@@ -145,7 +145,7 @@ def record_data(data, loc, date, hour, channel):
         count = 1
 
         for iterate in range(1, len(data)):
-            if data[iterate] <= (time_now + .5):
+            if data[iterate] <= (time_now + 1.5):
                 count += 1
                 time_now = data[iterate]
 

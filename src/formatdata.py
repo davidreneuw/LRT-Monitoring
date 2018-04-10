@@ -246,11 +246,15 @@ class Data():
                                self.data[1]**2 +
                                self.data[2]**2)
 
-        self.raw[3] = self.data[3]
+        self.fstar = self.data[3]
 
     def ffstar(self):
         """Returns a numpy array of f-f*"""
-        return self.data[3] - self.ppmF
+        print('fstar ')
+        print(self.fstar)
+        print('fppm ')
+        print(self.ppm)
+        return self.fstar - self.ppm
 
 class MakeData():
     """ Used by rt1hz.py """
@@ -441,7 +445,6 @@ def butter_low_pass(data, desired, original, order=5):
     var_b, var_a = signal.butter(order, cutoff,
                                  btype='lowpass',
                                  analog=False)
-
     return signal.filtfilt(var_b, var_a, data, padlen=10)
 
 def resample_data(data, desired):

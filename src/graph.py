@@ -198,6 +198,12 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
     #---PLOT MAKING---#
 
     for k in range(4):
+
+        axtwn = axes[k].twinx()
+        axtwn.plot(lrt.time, lrt.roc[k], 'r-',
+                   label='Rate of Change', alpha=.3)
+
+        logger.info('Plotter RoC')
         axes[k].plot(lrt.time, lrt.data[k], 'b-',
                      label='{} Data {}'.format(loc, lrt.avg[k]))
         logger.info('Plotted %s', loc)
@@ -206,18 +212,14 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
                      label='{} Data {}'.format('OTT', ott.avg[k]))
         logger.info('Plotted OTT')
 
-        axtwn = axes[k].twinx()
-        axtwn.plot(lrt.time, lrt.roc[k], 'r-',
-                   label='Rate of Change', alpha=.3)
-        logger.info('Plotter RoC')
-
-
         if mode == 'v32Hz' or mode == 'v100Hz':
             axes[k].plot(lrt.spikes[k][0], lrt.spikes[k][1]-lrt.avg[k],
                          'gx', markersize=10, alpha=.75)
     if ffstar:
-        axes[4].plot(lrt.time, lrt.ffstar,
+        axes[4].plot(lrt.time, lrt.ffstar(),
                      label='F-F*')
+        axes[4].legend(loc=2, prop={'size':12})
+        axes[4].grid(which='both')
 
     for k in range(4):
         # y axis scale
@@ -257,6 +259,15 @@ def __auto__(xback=0):
                date2.m,
                date2.d
               )
+
+    #---DAYPLOT---#
+    for loc in ['LRE', 'LRO', 'LRS']:
+        try:
+            plot('secNew', loc, date2, 1, ffstar=True)
+
+        except FailedToCollectDataError as err:
+            logger.error(err)
+    #---HOURPLOT---#
     try:
         hourly_times_file ='/home/akovachi/lrt_data/lrtRecords/lrtRecords%s%s.txt'%(date2.m, date2.d)
         if os.path.isfile(hourly_times_file):
@@ -283,15 +294,8 @@ def __auto__(xback=0):
             except:
                 raise
 
-    #---DAYPLOT---#
-    for loc in ['LRE', 'LRO', 'LRS']:
-        try:
-            plot('secNew', loc, date2, 1, ffstar=True)
-
-        except FailedToCollectDataError as err:
-            logger.error(err)
-
     print('--- %s seconds ---'%(time.time() - start_time))
 
 if __name__ == "__main__":
-    __auto__()
+    for x in range(4):
+        __auto__(xback=x)
