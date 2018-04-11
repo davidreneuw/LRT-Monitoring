@@ -18,7 +18,6 @@ confused you can contact me at kovachik.andrew@gmail.com
 
 # Python packages
 from math import ceil
-from datetime import datetime
 import time
 import logging
 import logging.config
@@ -36,7 +35,7 @@ from formatdata import Data, Date, make_files # custom
 # Creates logger
 date = Date(1)
 logging.filename = '/home/akovachi/lrt_data/log/graphing/graphing%s%s.log'%(
-        date.m,date.d)
+    date.m, date.d)
 logging.config.fileConfig('/home/akovachi/lrt_data/logging.conf')
 logger = logging.getLogger('graphing')
 
@@ -137,12 +136,12 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
         logger.info('Working on hour %s', config.hour)
 
     #----DATA COLLECTION----#
-    
+
     try:
         ott = Data('sec', date, 'OTT', config.direc('sec', date), hour=hour)
         logger.info('Got OTT data')
     except FileNotFoundError as err:
-        raise FailedToCollectDataError('FailedToCollectDataError: ' + 
+        raise FailedToCollectDataError('FailedToCollectDataError: ' +
                                        'Could not find: OTT sec data. ' +
                                        '%s\%s\%s Hour:%s'
                                        %(date.y, date.m, date.d, hour))
@@ -150,7 +149,7 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
         lrt = Data(mode, date, loc, config.direc(mode, date), hour=hour)
         logger.info('Got LRT data')
     except FileNotFoundError as err:
-        raise FailedToCollectDataError('FailedToCollectDataError: ' + 
+        raise FailedToCollectDataError('FailedToCollectDataError: ' +
                                        'Could not find: %s %s data. '
                                        %(loc, mode) +
                                        '%s\%s\%s Hour:%s'
@@ -189,7 +188,7 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
             loc, date.y, date.m, date.d, span, samp_freq),
         fontsize=20
         )
-    
+
 
     #---CALC SPIKES IF WANTED---#
 
@@ -271,7 +270,7 @@ def __auto__(xback=0):
     try:
         hourly_times_file ='/home/akovachi/lrt_data/lrtRecords/lrtRecords%s%s.txt'%(date2.m, date2.d)
         if os.path.isfile(hourly_times_file):
-            hourly_times = pd.read_csv(hourly_times_file,sep=' ')
+            hourly_times = pd.read_csv(hourly_times_file, sep=' ')
             hourly_times.drop(['YYYY', 'MM', 'DD', 'MI', 'D', 'MAG'], axis=1)
             # All that remains is HH and LOC
             hourly_times.drop_duplicates()
@@ -281,16 +280,16 @@ def __auto__(xback=0):
                                            %hourly_times_file)
     except FailedToCollectDataError as err:
         logger.error(err)
-        
+
     else:
         for iterate in range(len(hourly_times)):
             try:
-                plot('v32Hz', 
-                     hourly_times.iloc[iterate].LOC, 
-                     date2, 
-                     32, 
+                plot('v32Hz',
+                     hourly_times.iloc[iterate].LOC,
+                     date2,
+                     32,
                      hour=int(hourly_times.iloc[iterate].HH)
-                     )
+                    )
             except:
                 raise
 

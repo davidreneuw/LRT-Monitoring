@@ -3,16 +3,14 @@ This file will search through LRT folders and create a text file for
 the 1hz real time data. This data is created by taking the 32hz data
 filtering it to 1hz and then resampling that data to 1hz
 """
-from datetime import datetime
 import logging
 import logging.config
-from formatdata import MakeData, Date, GetTdms
-
+from formatdata import MakeData, Date
 
 # Creates logger
 date = Date(0)
 logging.filename = '/home/akovachi/lrt_data/log/rt1hz/rt1hz%s%s.log'%(
-        date.m,date.d)
+    date.m, date.d)
 logging.config.fileConfig('/home/akovachi/lrt_data/logging.conf')
 logger = logging.getLogger('rt1hz')
 
@@ -36,7 +34,7 @@ def main(loc='LRE', xback=0):
         hour = '23'
         date = Date(xback + 3) #day3
         data.add_tdms(loc, date, hour)
-        
+
         chop1 = len(data.data[0]) # used for removing extra days later
 
         logger.info('Got previous Day')
@@ -64,8 +62,8 @@ def main(loc='LRE', xback=0):
 
     except FileNotFoundError:
         raise FailedToCollectDataError('FailedToCollectDataError: ' +
-                'File for {}/{}/{} hour: {} location: {} not found'.format(
-                date.y, date.m, date.d, hour, loc))
+                                       'File for {}/{}/{} hour: {} location: {} not found'.format(
+                    date.y, date.m, date.d, hour, loc))
 
     #----FORMAT DATA----#
 
@@ -115,4 +113,4 @@ if __name__ == '__main__':
             logger.error(err)
         except:
             raise
-            
+

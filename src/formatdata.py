@@ -250,10 +250,6 @@ class Data():
 
     def ffstar(self):
         """Returns a numpy array of f-f*"""
-        print('fstar ')
-        print(self.fstar)
-        print('fppm ')
-        print(self.ppm)
         return self.fstar - self.ppm
 
 class MakeData():
