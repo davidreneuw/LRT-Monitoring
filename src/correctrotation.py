@@ -27,7 +27,7 @@ def dec_inc_to_abs(dec_inc):
 
     return np.array([x_axis, y_axis, z_axis])
 
-def create_rot_deg(dec, inc):
+def create_rot_deg(dec, inc, anc=0):
     """ Creates a rotation matrix from a dec, inc pair"""
 
     rotate_dec = np.array([[np.cos(dec), -np.sin(dec), 0],
@@ -38,7 +38,12 @@ def create_rot_deg(dec, inc):
                            [0, 1, 0],
                            [-np.sin(inc), 0, np.cos(inc)]])
 
+    rotate_anc = np.array([[1, 0, 0],
+                           [0, np.cos(anc), -np.sin(anc)],
+                           [0, np.sin(anc), np.cos(anc)]])
+
     rotate_tot = np.matmul(rotate_dec, rotate_inc)
+    rotate_tot = np.matmul(rotate_tot, rotate_anc)
     return rotate_tot
 
 def create_rot_matrix(desired, current):
@@ -71,6 +76,21 @@ def create_rot_matrix(desired, current):
                   scew_sym_matrix_sqr*(1-cos_phi)/(sin_phi)**2)
 
     return rot_matrix
+
+def calc_accuracy(data1, data2):
+    """ Determines the accuracy of one plot to resemble another"""
+    accuracy_here = np.array([0, 0, 0])
+    for axis in range(3):
+        #temp = ((data2[axis]-data2[axis].mean()) -
+        #        (data1[axis]-data1[axis].mean()))
+        #accuracy_here[axis] = np.abs(temp).mean()*1000
+        
+        temp = ((data2[axis]) -
+                (data1[axis]))
+        accuracy_here[axis] = np.abs(temp).mean()
+    return np.sqrt(accuracy_here[0]**2 +
+                   accuracy_here[1]**2 +
+                   accuracy_here[2]**2),
 
 def rotate_to_abs(data1, data2, make_plot=False,
                   entire=False, dec=None, inc=None):
@@ -158,7 +178,7 @@ def rotate_to_abs(data1, data2, make_plot=False,
             ax[iterate].plot(x, (data2[iterate]))
         plt.show()
 
-def rotate_by_deg(data1, dec, inc, plot=False, ref_data=None,
+def rotate_by_deg(data1, dec, inc, anc=0, plot=False, ref_data=None,
                   iterate=None, axis_equality=False, search_best=False):
     """ Rotates data1 by dec, inc, in radians"""
 
@@ -167,18 +187,14 @@ def rotate_by_deg(data1, dec, inc, plot=False, ref_data=None,
         data1 = np.array([data1[0], data1[1], data1[2]])
 
     raw = np.copy(data1)
-
-    if findbest:
-        continue_searching = True
-    #    while continue_searching:
-
+    
     if iterate:
         # Creates the different rotations to be tested
         num_bins = iterate
-        dec_rot = np.linspace(dec, -dec, num_bins)
+        dec_rot = np.linspace(-dec, dec, num_bins)
         inc_rot = np.linspace(inc, -inc, num_bins)
         # Initiate the different arrays
-        intensity = np.array([[], [], []])
+        intensity = np.array([])
         intensity_here = [0, 0, 0]
 
         for rot_inc in inc_rot:
@@ -188,36 +204,12 @@ def rotate_by_deg(data1, dec, inc, plot=False, ref_data=None,
                 data = np.matmul(raw.transpose(), rot_matrix).transpose()
                 diff = np.copy(ref_data)
 
-                for axis in range(3):
-                    intensity_here[axis] = (diff[axis] -
-                                            data[axis])
-
-                    intensity_here[axis] = intensity_here[axis].mean()
-
+                accuracy = calc_accuracy(data, diff)
                 intensity = np.append(intensity,
-                                      [[intensity_here[0]],
-                                       [intensity_here[1]],
-                                       [intensity_here[2]]],
-                                      axis=1
+                                      accuracy,
+                                      axis=0
                                      )
 
-        # Normalize axis so all are considered equal
-        if axis_equality:
-            for i in range(3):
-                intensity[i] = (np.absolute(intensity[i]) /
-                                np.max(np.abs(intensity[i])))
-            intensity = np.sqrt(intensity[0]**2 *
-                                intensity[1]**2 *
-                                intensity[2]**2)
-            intensity = intensity/np.max(np.abs(intensity))
-
-        # Take the absolute difference)
-        else:
-            for i in range(3):
-                intensity[i] = np.absolute(intensity[i])
-            intensity = np.sqrt(intensity[0]**2 +
-                                intensity[1]**2 +
-                                intensity[2]**2)
         # Reshape data to be in the correct bins
         intensity = np.absolute(intensity).reshape(num_bins, num_bins)
 
@@ -234,22 +226,87 @@ def rotate_by_deg(data1, dec, inc, plot=False, ref_data=None,
 
     # Rotate and show the data
     else:
-        rot_matrix = create_rot_deg(dec, inc)
+        rot_matrix = create_rot_deg(dec, inc, anc)
         data1 = np.matmul(data1.transpose(), rot_matrix).transpose()
 
         if plot:
             x = np.arange(len(data1[0])) / 3600
             fig, ax = plt.subplots(3, figsize=(15, 15))
-            ax[0].set_title('LRS axis differences after rotation')
+            #ax[0].set_title('LRS axis differences after rotation')
             axis = ['X', 'Y', 'Z']
 
             for iterate in range(3):
-                ax[iterate].plot(x, data1[iterate]-ref_data[iterate],
-                                 label='Rotated-OTT', color='r')
+                ax[iterate].plot(x, data1[iterate],
+                                 label='Rotated', color='r')
+                ax[iterate].plot(x, ref_data[iterate],
+                                 label='OTT', color='b')
                 ax[iterate].legend(loc=1)
                 ax[iterate].set_ylabel(axis[iterate])
             ax[2].set_xlabel('Time(h)')
             plt.show()
+            
+            #fig, ax = plt.subplots(3, figsize=(15, 15))
+            #for iterate in range(3):
+            #    ax[iterate].plot(x, data1[iterate]-data1[iterate].mean(),
+            #                     label='Rotated', color='r')
+            #    ax[iterate].plot(x, ref_data[iterate]-ref_data[iterate].mean(),
+            #                     label='OTT', color='b')
+            #    ax[iterate].legend(loc=1)
+            #    ax[iterate].set_ylabel(axis[iterate])
+            #ax[2].set_xlabel('Time(h)')
+            #plt.show()
+            #
+            fig, ax = plt.subplots(3, figsize=(15, 15))
+            for iterate in range(3):
+                ax[iterate].plot(x, (ref_data[iterate]-data1[iterate]),
+                                 label='Diff', color='b')
+                ax[iterate].legend(loc=1)
+                ax[iterate].set_ylabel(axis[iterate])
+            ax[2].set_xlabel('Time(h)')
+            plt.show()
+
+def find_best_tri_rot(data1, data2, inc_size):
+    raw = np.copy(data1[:3]).transpose()
+    is_best_found = False
+    current_accuracy = calc_accuracy(data1, data2)
+    last_rotation = [0., 0., 0.]
+    next_rotation = [0., 0., 0.]
+    while not is_best_found:
+        for axis in range(3):
+
+            add_rotation = list(next_rotation)
+            add_rotation[axis] += inc_size
+            rotation =  create_rot_deg(add_rotation[0],
+                                       add_rotation[1],
+                                       add_rotation[2])
+            add_accuracy = calc_accuracy(np.matmul(raw, rotation).transpose(),
+                                         data2)
+            
+            neg_rotation = list(next_rotation)
+            neg_rotation[axis] -= inc_size
+            rotation =  create_rot_deg(neg_rotation[0],
+                                       neg_rotation[1],
+                                       neg_rotation[2])
+            neg_accuracy = calc_accuracy(np.matmul(raw, rotation).transpose(),
+                                         data2)
+            
+            if (add_accuracy < current_accuracy and
+                add_accuracy < neg_accuracy):
+                next_rotation = list(add_rotation)
+                current_accuracy = add_accuracy
+            elif neg_accuracy < current_accuracy:
+                next_rotation = list(neg_rotation)
+                current_accuracy = neg_accuracy
+
+
+        if last_rotation == next_rotation:
+            inc_size = inc_size/2
+            if inc_size < .0000001:
+                best_rotation = next_rotation
+                is_best_found = True
+        last_rotation = list(next_rotation)
+
+    print(best_rotation)
 
 def main():
     """Main routine"""
@@ -266,8 +323,8 @@ def main():
         '-s', '--savematrix',
         action='store_true', help='Save each matrix created variables')
     parser.add_argument(
-        '-m', '--usematrix',
-        action='store_true', help='Use matrix for rotation')
+        '-m', '--mode',
+        type=int, help='1-matrix, 2-dec/inc, 3-find best')
     parser.add_argument(
         '-N', '--numberbins',
         default=0,
@@ -286,6 +343,11 @@ def main():
         type=float,
         default=None,
         help='Inclination to use if rotating by angles')
+    parser.add_argument(
+        '-anc', '--anclination',
+        type=float,
+        default=0,
+        help='Anclination to use if rotating by angles')
     parser.add_argument(
         '-f1', '--file1',
         nargs='+',
@@ -306,7 +368,7 @@ def main():
 
     all_files1 = []
     all_files2 = []
-    for file1, file2 in zip(args.f1, args.f2):
+    for file1, file2 in zip(args.file1, args.file2):
         all_files1.append(args.dir1+file1)
         all_files2.append(args.dir2+file2)
 
@@ -325,7 +387,7 @@ def main():
              data2.z,
              data2.f]
 
-    if getattr(args, 'usematrix'):
+    if getattr(args, 'mode') == 0:
         rotate_to_abs(data1,
                       data2,
                       getattr(args, 'plot'),
@@ -335,15 +397,22 @@ def main():
                       getattr(args, 'inclination'),
                      )
 
-    else:
+    elif getattr(args, 'mode') == 1:
         rotate_by_deg(data1,
                       getattr(args, 'declination'),
                       getattr(args, 'inclination'),
+                      getattr(args, 'anclination'),
                       plot=True,
                       ref_data=data2,
                       iterate=getattr(args, 'numberbins'),
                       axis_equality=False,
                       search_best=getattr(args, 'findbest'))
+
+    elif getattr(args, 'mode') == 2:
+        find_best_tri_rot(data1,
+                          data2,
+                          .001)
+
 
 
 
