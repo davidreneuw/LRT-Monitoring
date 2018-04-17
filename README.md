@@ -1,3 +1,6 @@
+## New version has been overwriting by mistake.
+## Currently outdated
+
 The following is a breif explanation of the file formating for LRT.tdms filesand an explanation of the the import python files
 
 By using the package `npTDMS` (an addition to numpy package) we can read the `.tdms` file type.
