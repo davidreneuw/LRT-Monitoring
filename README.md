@@ -73,7 +73,7 @@ awkward with how the date is used, but this program was created to be run automa
 with a variable of days ago
 ```
 from src.formatdata import Date, Data
-two_days_ago = Date(1)
+two_days_ago = Date(2)
 data = Data('secNew', two_days_ago, 'LRO', '/home/dcalp/lrt/LRO/RT1Hz/')
 data.data[0]
 ```
