@@ -71,12 +71,12 @@ def main(loc='LRE', xback=0):
                  'Data len: {} Data looks like: {}'.format(
                      len(data.data[2]), data.data[2]))
 
-    sizebefore = len(data.data[0])
-    data.filtsample(.5, 1, 32)
-    sizeafter = len(data.data[0])
+    sizebefore = len(data.time)
+    data.filtsample(.5, 1*60*60*26, 32)
+    sizeafter = len(data.time)
 
-    chop1 = int(chop1*sizeafter/sizebefore)
-    chop2 = int(chop2*sizeafter/sizebefore)
+    chop1 = int(round(chop1*sizeafter/sizebefore))
+    chop2 = int(round(chop2*sizeafter/sizebefore))
     data.chop(chop1, chop2)
 
     #----SAVE DATA-----#
@@ -84,12 +84,20 @@ def main(loc='LRE', xback=0):
     file_name = ('/home/dcalp/lrt/' +
                  '%s/RT1Hz/%s%s%s%svsec.sec'
                  %(loc, loc, date2.y, date2.m, date2.d))
+    from decimal import Decimal, ROUND_HALF_UP
     with open(file_name, 'w', 1) as data_base:
-        for iterate in range(86400):
-
-            minute, second = divmod(iterate, 60)
+        for iterate, time in enumerate(data.time):
+            
+            time = Decimal(time)
+            time = Decimal(time.quantize(Decimal('.001'),
+                                             rounding=ROUND_HALF_UP))
+            time, mili = divmod(time, 1)
+            minute, second = divmod(time, 60)
             hour, minute = divmod(minute, 60)
-            time = "%02d:%02d:%02d:000" % (hour, minute, second)
+            
+            mili = str(mili).split('.')
+            time = "%02d:%02d:%02d:%s" % (hour, minute, 
+                                        second, mili[1])
             data_base.write('%s-%s-%s %s %s    %s %s %s %s\n'
                             %(
                                 date2.y,
