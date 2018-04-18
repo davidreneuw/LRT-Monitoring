@@ -108,7 +108,7 @@ class Data():
                 # time looks like HH:MM:SS:MSS
                 columns = ['date', 'time', 'doy', 'x', 'y', 'z', 'f']
                 data_frame = pd.read_fwf(self.file, header=None, names=columns)
-                t = datetime.strptime(data_frame['time'][0], '%H:%M:%S:000')
+                t = datetime.strptime(data_frame['time'][0], '%H:%M:%S:%f')
                 data_frame['time'] = data_frame['time'].map(
                     lambda x:
                     float((datetime.strptime(x, '%H:%M:%S:%f') - t
