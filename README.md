@@ -82,7 +82,7 @@ above for `data.data[0]`, `data.data[1]`, `data.data[2]`.
 
 Now we will continue and do some operations on the data to create new attributes.
 
-``
+```
 # Creates 10s running average
 data.make_smooth(10)
 data.data[0]
@@ -95,7 +95,7 @@ data.roc[0]
 data.make_variance()
 data.data[0]
 data.avg[0]
-``
+```
 Consider looking in the source for more options and experimenting.
 
 
