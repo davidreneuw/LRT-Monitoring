@@ -64,7 +64,42 @@ graph.py 
 - Plots Entire days using the created 1hz files 
 - Plots hourly times of those returned by `recordlrt.py`
   
- ## Setup
+## Manual Usage  
+
+To become accustomed with some of the features built in try running some of the following code:
+
+We can start by importing the files needed and operating on some data. The way this is done may appear a little
+awkward with how the date is used, but this program was created to be run automatically. So the date is created
+with a variable of days ago
+```
+from src.formatdata import Date, Data
+two_days_ago = Date(1)
+data = Data('secNew', two_days_ago, 'LRO', '/home/dcalp/lrt/LRO/RT1Hz/')
+data.data[0]
+```
+This will output the x data stream for LRO from two days ago. Try running the
+above for `data.data[0]`, `data.data[1]`, `data.data[2]`.
+
+Now we will continue and do some operations on the data to create new attributes.
+
+``
+# Creates 10s running average
+data.make_smooth(10)
+data.data[0]
+
+# Create rate of change attribute
+data.make_rate_change()
+data.roc[0]
+
+# Changes data to be in average+-variance
+data.make_variance()
+data.data[0]
+data.avg[0]
+``
+Consider looking in the source for more options and experimenting.
+
+
+## Setup
  
  For an explanation on how to set up anaconda read the text file `ANACONDAINSTALL.txt`
  
