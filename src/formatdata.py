@@ -111,7 +111,7 @@ class Data():
                 t = datetime.strptime(data_frame['time'][0], '%H:%M:%S:000')
                 data_frame['time'] = data_frame['time'].map(
                     lambda x:
-                    float((datetime.strptime(x, '%H:%M:%S:000') - t
+                    float((datetime.strptime(x, '%H:%M:%S:%f') - t
                           ).total_seconds()))
 
             elif self.filetype == 'sec' or self.filetype == 'min':
@@ -259,11 +259,13 @@ class MakeData():
                      np.array([]),
                      np.array([]),
                      np.array([])]
+        self.time = np.array([])
 
     def chop(self, chop1, chop2):
         """Chops edges of paramaters"""
         for iterate in range(0, 3):
             self.data[iterate] = self.data[iterate][chop1:-chop2]
+        self.time = self.time[chop1:-chop2]
 
     def add_tdms(self, loc, date, hour, ppm=False):
 
@@ -287,14 +289,17 @@ class MakeData():
         :type samp_freq: float
         :param samp_freq: current sampling frequency
         """
-        desr_freq = int(samp_freq / desr_freq)
         dif = -abs(samp_freq*60*60*26 - len(self.data[0]))
+        cnt = int(len(self.time)/desr_freq)
 
         for iterate in range(0, 3):
             self.data[iterate] = butter_low_pass(self.data[iterate],
                                                  filt_freq,
-                                                 samp_freq)[:dif:desr_freq]
-
+                                                 samp_freq)
+            self.data[iterate] = self.data[iterate][::cnt]
+            self.data[iterate] = self.data[iterate][:desr_freq]
+        self.time = self.time[::cnt] 
+        self.time = self.time[:desr_freq]
     def add_xyz(self, data):
         """
         Adds the mag data to the current data
@@ -308,6 +313,8 @@ class MakeData():
             channel = 'channel %s'%(iterate+1)
             self.data[iterate] = np.hstack((self.data[iterate],
                                             tdms.object(group, channel).data))
+        self.time = np.hstack((self.time, 
+                               tdms.object(group, 'sec of day').data))
 
     def add_f(self, data):
         """
@@ -476,6 +483,7 @@ def resample_data(data, desired):
     len_new = len(data)
     resample = int(np.ceil(desired * len_new / len_old))
     data = signal.resample(data, resample)
+    data = data[:desired]
     return data
 
 def make_files(year, month, day):
