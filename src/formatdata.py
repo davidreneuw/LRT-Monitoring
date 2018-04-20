@@ -109,10 +109,11 @@ class Data():
                 columns = ['date', 'time', 'doy', 'x', 'y', 'z', 'f']
                 data_frame = pd.read_fwf(self.file, header=None, names=columns)
                 t = datetime.strptime(data_frame['time'][0], '%H:%M:%S:%f')
+                print(t)
                 data_frame['time'] = data_frame['time'].map(
                     lambda x:
                     float((datetime.strptime(x, '%H:%M:%S:%f') - t
-                          ).total_seconds()))
+                         ).total_seconds()))
 
             elif self.filetype == 'sec' or self.filetype == 'min':
                 # time looks like JJJ:HH:MM:SS

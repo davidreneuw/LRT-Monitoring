@@ -5,7 +5,8 @@ filtering it to 1hz and then resampling that data to 1hz
 """
 import logging
 import logging.config
-from formatdata import MakeData, Date
+from formatdata import MakeData, Date, Data
+from correctrotation import find_best_scalar, find_best_tri_rot
 
 # Creates logger
 date = Date(0)
@@ -23,7 +24,7 @@ fmt5 = lambda x: "%05d" % x
 class FailedToCollectDataError(Exception):
     pass
 
-def main(loc='LRE', xback=0):
+def main(loc='LRE', xback=2):
 
     data = MakeData() # start data class
 
@@ -32,7 +33,7 @@ def main(loc='LRE', xback=0):
     # PREVIOUS DAY
     try:
         hour = '23'
-        date = Date(xback + 3) #day3
+        date = Date(xback + 1) #day3
         data.add_tdms(loc, date, hour)
 
         chop1 = len(data.data[0]) # used for removing extra days later
@@ -44,6 +45,8 @@ def main(loc='LRE', xback=0):
             hour = fmt2(hour)
             date = Date(xback + 2)
             data.add_tdms(loc, date, hour)
+            ott = Data('sec', date, 'OTT', 
+                       '/home/akovachi/lrt_data/ottSecData/2018/')
 
             logger.info('Hour %s fine', hour)
 
@@ -54,7 +57,7 @@ def main(loc='LRE', xback=0):
         temp = len(data.data[0])
 
         hour = '00'
-        date = Date(xback + 1)
+        date = Date(xback - 1)
         data.add_tdms(loc, date, hour)
 
         chop2 = len(data.data[0]) - temp
@@ -66,7 +69,6 @@ def main(loc='LRE', xback=0):
                     date.y, date.m, date.d, hour, loc))
 
     #----FORMAT DATA----#
-
     logger.debug('Before any filtering' +
                  'Data len: {} Data looks like: {}'.format(
                      len(data.data[2]), data.data[2]))
@@ -79,13 +81,23 @@ def main(loc='LRE', xback=0):
     chop2 = int(round(chop2*sizeafter/sizebefore))
     data.chop(chop1, chop2)
 
+    data.data[:3] = find_best_scalar(data.data[:3], ott.data[:3],
+                                     return_scaled=True)
+    data.data[:3] = find_best_tri_rot(data.data[:3], ott.data[:3],
+                                      .1, return_rotated=True)
+    data.data[:3] = find_best_scalar(data.data[:3], ott.data[:3],
+                                     return_scaled=True)
+
     #----SAVE DATA-----#
-    date2 = Date(xback + 2)
+    date2 = Date(xback)
     file_name = ('/home/dcalp/lrt/' +
                  '%s/RT1Hz/%s%s%s%svsec.sec'
                  %(loc, loc, date2.y, date2.m, date2.d))
+    logger.debug(file_name)
     from decimal import Decimal, ROUND_HALF_UP
+
     with open(file_name, 'w', 1) as data_base:
+        logger.debug('Making database for day')
         for iterate, time in enumerate(data.time):
             
             time = Decimal(time)

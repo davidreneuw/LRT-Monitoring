@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.colors import LogNorm
 
+CURRENT_OFFSET = [17573.288, -4385.880, 50807.408]
 class DataAreNotSameLength(Exception):
     """ Custom Exception"""
     pass
@@ -81,16 +82,15 @@ def calc_accuracy(data1, data2):
     """ Determines the accuracy of one plot to resemble another"""
     accuracy_here = np.array([0, 0, 0])
     for axis in range(3):
-        #temp = ((data2[axis]-data2[axis].mean()) -
-        #        (data1[axis]-data1[axis].mean()))
-        #accuracy_here[axis] = np.abs(temp).mean()*1000
-        
-        temp = ((data2[axis]) -
-                (data1[axis]))
-        accuracy_here[axis] = np.abs(temp).mean()
+        temp = data2[axis] - data1[axis] 
+        accuracy_here[axis] = np.abs(temp).mean() 
     return np.sqrt(accuracy_here[0]**2 +
                    accuracy_here[1]**2 +
-                   accuracy_here[2]**2),
+                   accuracy_here[2]**2)
+
+def calc_range_dif(data1, data2):
+    temp = data2-data1
+    return (np.amax(temp) - np.amin(temp))
 
 def rotate_to_abs(data1, data2, make_plot=False,
                   entire=False, dec=None, inc=None):
@@ -244,18 +244,7 @@ def rotate_by_deg(data1, dec, inc, anc=0, plot=False, ref_data=None,
                 ax[iterate].set_ylabel(axis[iterate])
             ax[2].set_xlabel('Time(h)')
             plt.show()
-            
-            #fig, ax = plt.subplots(3, figsize=(15, 15))
-            #for iterate in range(3):
-            #    ax[iterate].plot(x, data1[iterate]-data1[iterate].mean(),
-            #                     label='Rotated', color='r')
-            #    ax[iterate].plot(x, ref_data[iterate]-ref_data[iterate].mean(),
-            #                     label='OTT', color='b')
-            #    ax[iterate].legend(loc=1)
-            #    ax[iterate].set_ylabel(axis[iterate])
-            #ax[2].set_xlabel('Time(h)')
-            #plt.show()
-            #
+
             fig, ax = plt.subplots(3, figsize=(15, 15))
             for iterate in range(3):
                 ax[iterate].plot(x, (ref_data[iterate]-data1[iterate]),
@@ -264,32 +253,63 @@ def rotate_by_deg(data1, dec, inc, anc=0, plot=False, ref_data=None,
                 ax[iterate].set_ylabel(axis[iterate])
             ax[2].set_xlabel('Time(h)')
             plt.show()
+        else:
+            return data1.transpose()
 
-def find_best_tri_rot(data1, data2, inc_size):
+def find_best_tri_rot(data1, data2, inc_size, return_rotated=False):
+    """
+    Given two data sets it will return either best rotation to match
+    the other data set or return the rotated data that best matches
+
+    :type data1: numpy array
+    :param data1: the data set that will be rotated
+
+    :type data2: numpy array
+    :param data2: the ideal data set we want to model
+
+    :type inc_size: float
+    :param inc_size: the inital increment size to rotate by. This is
+                     halfed when an iteration does not improve
+
+    :type return_rotated: Boolean
+    :param return_rotated: returns rotated data if True
+                           returns rotation if False
+    """
     raw = np.copy(data1[:3]).transpose()
+    # Declare inital conditions
     is_best_found = False
     current_accuracy = calc_accuracy(data1, data2)
     last_rotation = [0., 0., 0.]
     next_rotation = [0., 0., 0.]
+
+    # Continue searching until best rotation is found
+    # best is found when no improvement is made of n iterations
     while not is_best_found:
         for axis in range(3):
 
+            # Try a positive rotation about the given axis
             add_rotation = list(next_rotation)
             add_rotation[axis] += inc_size
+
+            # Try rotation and check accuracy
             rotation =  create_rot_deg(add_rotation[0],
                                        add_rotation[1],
                                        add_rotation[2])
             add_accuracy = calc_accuracy(np.matmul(raw, rotation).transpose(),
                                          data2)
-            
+            # Try a negative rotation about the given axis 
             neg_rotation = list(next_rotation)
             neg_rotation[axis] -= inc_size
+
+            # Try rotation and check a c curacy
             rotation =  create_rot_deg(neg_rotation[0],
                                        neg_rotation[1],
                                        neg_rotation[2])
             neg_accuracy = calc_accuracy(np.matmul(raw, rotation).transpose(),
                                          data2)
             
+            # See which rotation is best (previous, positive, negative)
+            # If there is an improvement than that is the new default
             if (add_accuracy < current_accuracy and
                 add_accuracy < neg_accuracy):
                 next_rotation = list(add_rotation)
@@ -299,6 +319,9 @@ def find_best_tri_rot(data1, data2, inc_size):
                 current_accuracy = neg_accuracy
 
 
+        # If there was no improvement then divide the incrememt size by 2
+        # Once the increment size is smaller than a limit return the
+        # Current rotation as the best
         if last_rotation == next_rotation:
             inc_size = inc_size/2
             if inc_size < .0000001:
@@ -306,7 +329,69 @@ def find_best_tri_rot(data1, data2, inc_size):
                 is_best_found = True
         last_rotation = list(next_rotation)
 
-    print(best_rotation)
+    if return_rotated:
+        return rotate_by_deg(data1, best_rotation[0],
+                                    best_rotation[1],
+                                    best_rotation[2]).transpose()
+
+    else: return best_rotation
+
+def find_best_scalar(data1, data2, return_scaled=False):
+    """
+    Attempts to find the best scalar to multiply by the data1 to represent
+    data2
+
+    :type data1: nparray
+    :param data1: data to be rescaled
+
+    :type data2: nparray
+    :param data2: data to be remodled as
+
+    :type return_best: Boolean
+    :param return_best: return the rescalled data if true
+                        return the scallars if False    
+    """
+    raw = np.copy(data1[:3])
+    best_scalar = [1, 1, 1]
+    for axis in range(3):
+        data1[axis] = data1[axis] - CURRENT_OFFSET[axis]
+        data2[axis] = data2[axis] - CURRENT_OFFSET[axis]
+        current_range = calc_range_dif(raw[axis], data2[axis]) 
+        is_best_found = False
+        increment = .001
+        while not is_best_found:
+            positive_scalar = best_scalar[axis] + increment
+            positive_change = calc_range_dif(
+                raw[axis]*(positive_scalar),
+                data2[axis])
+
+            negative_scalar = best_scalar[axis] - increment
+            negative_change = calc_range_dif(
+                raw[axis]*(negative_scalar),
+                data2[axis])
+
+            if (positive_change < current_range and
+                positive_change < negative_change):
+                current_range = positive_change
+                best_scalar[axis] = positive_scalar
+
+            elif negative_change < current_range:
+                current_range = negative_change
+                best_scalar[axis] = negative_scalar
+
+            else:
+                is_best_found = True
+
+
+    if return_scaled:
+        print(best_scalar)
+        for axis in range(3):
+            data1[axis] = data1[axis]*best_scalar[axis] + CURRENT_OFFSET[axis]
+        return data1[:3]
+    else:
+        return best_scalar
+
+
 
 def main():
     """Main routine"""

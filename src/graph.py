@@ -154,8 +154,8 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
                                        %(loc, mode) +
                                        '%s\%s\%s Hour:%s'
                                        %(date.y, date.m, date.d, hour))
-
-
+    # Apply all data maniplulation needed
+    # TODO: Make options for different data manipulations
     lrt.fstar()
     ott.fstar()
     if isinstance(hour, int): # is hour not None
@@ -165,12 +165,12 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
     lrt.make_rate_change()
     lrt.make_variance()
     ott.make_variance()
-
-    logger.info('Creating plot...')
+    logger.info('Reformated Data')
 
     #---PLOT DETAILS---#
     names = ['X', 'Y', 'Z', 'F*', 'F-F*']
 
+    # Different names for axis depending on options given
     if  mode == 'v32Hz' or mode == 'v100Hz':
         scale, span = 'Min', ('Hour '+'%02d'%(hour)+'00')
     else:
@@ -181,6 +181,7 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
     else:
         plots = 4
 
+    # Creating subplots
     fig, axes = plt.subplots(plots, figsize=config.size)
     fig.text(.5, .04, 'Time(%s)'%(scale), ha='center', va='center')
     fig.suptitle(
@@ -189,37 +190,40 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
         fontsize=20
         )
 
-
-    #---CALC SPIKES IF WANTED---#
-
-    logger.info('Reformated Data')
-
     #---PLOT MAKING---#
+    logger.info('Creating plot...')
 
     for k in range(4):
 
+        # Rate of change
         axtwn = axes[k].twinx()
         axtwn.plot(lrt.time, lrt.roc[k], 'r-',
                    label='Rate of Change', alpha=.3)
-
         logger.info('Plotter RoC')
+
+        # LRT data
         axes[k].plot(lrt.time, lrt.data[k], 'b-',
                      label='{} Data {}'.format(loc, lrt.avg[k]))
         logger.info('Plotted %s', loc)
 
+        # OTT data
         axes[k].plot(ott.time, ott.data[k], 'c-',
                      label='{} Data {}'.format('OTT', ott.avg[k]))
         logger.info('Plotted OTT')
 
+        # Spikes if mode is 32hz or 100hz
         if mode == 'v32Hz' or mode == 'v100Hz':
             axes[k].plot(lrt.spikes[k][0], lrt.spikes[k][1]-lrt.avg[k],
                          'gx', markersize=10, alpha=.75)
+
+    # F-Fstar if option is desired
     if ffstar:
         axes[4].plot(lrt.time, lrt.ffstar(),
                      label='F-F*')
         axes[4].legend(loc=2, prop={'size':12})
         axes[4].grid(which='both')
 
+    # Subplot options
     for k in range(4):
         # y axis scale
         axis.yaxis(lrt.data[k], ott.data[k])
@@ -247,9 +251,9 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
 
     logger.info('Plot completed and saved to %s', config.save)
 
-def __auto__(xback=0):
+def __auto__(xback=2):
 
-    date2 = Date(2+xback)
+    date2 = Date(xback)
 
     start_time = time.time()
 
