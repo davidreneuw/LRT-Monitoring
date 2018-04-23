@@ -1,6 +1,4 @@
 #!/home/akovachi/anaconda3/bin/python
-
-
 import os.path
 import syslog
 import logging
@@ -26,7 +24,6 @@ logger.addHandler(handler)
 # Sets format
 formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
-
 
 fmt2 = lambda x : "%02d" % x  #format hours,month,day
 fmt3 = lambda x : "%03d" % x  #format Day of year
