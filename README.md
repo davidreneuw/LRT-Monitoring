@@ -37,6 +37,55 @@ lrt_data
 |   |   `-- checkfiles (D)
 ```
 
+## Anaconda installation
+
+1. Go to https://repo.continuum.io/
+    - This is the anaconda home page
+
+2. On the page find and click on 'View All Installers'
+
+3. Select and download 'Anaconda-5.0.1-Linux-x86_64.sh'
+    - There may be newer versions and they may work
+    - The linux server may not support a newer version at
+                some point in time
+
+4. Using shell(or any other secure file transfer) move the .sh 
+    file to your home directory. In the ssh terminal type:
+            'bash Anaconda-5.0.1-Linux-x86_64.sh'
+                - Or the extension of the version you installed
+
+5. Select yes to the default options. This will create the anaconda3 file in your
+   home directory.
+
+6. Wait for the installation to complete and close the terminal
+
+7. Reopen the terminal and type 'python'
+   -You should see something similar to:
+```
+bash-4.2$ python
+Python 3.6.3 |Anaconda, Inc.| (default, DATE,TIME)
+```
+   -type 'quit()' to leave this process
+
+8. If you did not see Anaconda, Inc. and instead saw that was
+   missing or perhaps python you have a few more steps to follow.
+
+9. Locate and open your .bash_profile file
+
+10. Near the end of the file you should see a line which says
+       `export PATH`. Edit this line so that it is:
+       ``` PATH="/home/YOURFILE/anaconda3/bin:$PATH"```
+
+11. Save the file and exit. 
+
+12. Try step (7.) again
+
+8-12. EXPLAINED:
+Essentially the installation of anaconda is supposed to add
+this line to your profile on its own, and it does on some
+linux servers. It does not on this one and thus we have to
+do it manually.
+        
 
 # Background
 
