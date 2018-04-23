@@ -48,7 +48,7 @@ def main(loc='LRE', xback=2):
             date = Date(xback + 2)
             data.add_tdms(loc, date, hour)
             ott = Data('sec', date, 'OTT', 
-                       (USER + '/lrt_data/ottSecData/2018/')
+                       (USER + '/lrt_data/ottSecData/2018/'))
 
             logger.info('Hour %s fine', hour)
 
@@ -83,6 +83,8 @@ def main(loc='LRE', xback=2):
     chop2 = int(round(chop2*sizeafter/sizebefore))
     data.chop(chop1, chop2)
 
+    # TODO: Determine is second scalar should be removed
+    # Often all terms in second scalr =~ 1
     data.data[:3] = find_best_scalar(data.data[:3], ott.data[:3],
                                      return_scaled=True)
     data.data[:3] = find_best_tri_rot(data.data[:3], ott.data[:3],
