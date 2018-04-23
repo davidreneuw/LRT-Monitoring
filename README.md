@@ -1,5 +1,44 @@
-## New version has been overwriting by mistake.
-## Currently outdated
+# Installation
+On a linux server navigate to the home directory
+
+From this github repository click `Clone or download` then click on `Use SSH` copy the link
+
+Now in the terminal type `$ git clone [Copied directory]`
+
+Upon proper installation the file structure should appear as the following 
+```
+lrt_data
+|-- anaconda3
+|-- lrt_data
+|   |-- ottSecData (D)
+|   |-- lrtRecords (D)
+|   |-- logging.conf
+|   |-- option.conf
+|   |
+|   |-- src
+|   |   |-- checkFiles.py
+|   |   |-- formatdata.py
+|   |   |-- rt1hz.py
+|   |   `-- graph.py
+|   |
+|   |-- bashfiles
+|   |   |-- pulfiles.sh
+|   |   `-- sendEmail.sh
+|   | 
+|   |-- plots
+|   |   |-- LRE (D)
+|   |   |-- LRO (D)
+|   |   `-- LRS (D)
+|   |  
+|   |-- logFiles
+|   |   |-- record (D)
+|   |   |-- graphing (D)
+|   |   |-- filestransfer (D)
+|   |   `-- checkfiles (D)
+```
+
+
+# Background
 
 The following is a breif explanation of the file formating for LRT.tdms filesand an explanation of the the import python files
 
