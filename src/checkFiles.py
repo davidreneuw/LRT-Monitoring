@@ -19,7 +19,7 @@ month = datetime.today().strftime('%m')
 
 # Sets handler
 handler = logging.FileHandler(
-        '/home/akovachi/lrt_data/log/checkfiles/checkfiles%s%s.log'%(month,day)
+        '/home/akovachi/lrt_data/log/checkfiles/checkfiles%s%s.log'%(month, day)
         )
 logger.addHandler(handler)
 
@@ -40,27 +40,21 @@ for loc in ['LRE','LRO','LRS']:
     for hour in range(1,24):
         my_file = Path(
                 '/home/dcalp/lrt/%s/Serial/%s/%s%s%s%s[%s]v32Hz.tdms'
-                %(loc,year,loc,year,month,day,fmt2(hour))
+                %(loc, year, loc, year, month, day, fmt2(hour))
                 )
 
         if my_file.exists() == False:
             logger.warning(
                     'File not found for %s%s%s%s[%s]v32Hz.tdms'
-                    %(loc,year,month,day,fmt2(hour))
+                    %(loc, year, month, day, fmt2(hour))
                     )
 
     my_file = Path(
             '/home/dcalp/lrt/%s/Serial/%s/%s%s%s%sv1sec.tdms'
-            %(loc,year,loc,year,month,day))
+            %(loc, year, loc, year, month, day))
 
     if my_file.exists() == False:
         logger.warning(
                 'File not found for %s%s%s%sv1sec.tdms'
-                %(loc,year,month,day)
+                %(loc, year, month, day)
                 )
-
-
-
-
-
-
