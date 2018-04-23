@@ -40,8 +40,6 @@ lrt_data
 
 # Background
 
-The following is a breif explanation of the file formating for LRT.tdms filesand an explanation of the the import python files
-
 By using the package `npTDMS` (an addition to numpy package) we can read the `.tdms` file type.
 The values can be reached refering to a specific node on the tree. A tdms file is broken up into different types of objects;the root object, the group object, and the channel object. 
 
@@ -98,7 +96,7 @@ There are 4 main python scripts:
   high noise and times of possible interferance 
 - Returns a fair number of false positives and could be refined
 
-graph.py 
+`graph.py  `
 - Uses `formatdata.py `
 - Plots Entire days using the created 1hz files 
 - Plots hourly times of those returned by `recordlrt.py`
@@ -145,13 +143,13 @@ Consider looking in the source for more options and experimenting.
  To automate these procedures add the following to you `crontab -e` file
  
  ```
- 1 1 * * * /home/akovachi/lrt_data/bashFiles/pullfiles.sh &> /home/akovachi/lrt_data/log/filetransfer.log
+ 1 1 * * * [Home]/lrt_data/bashFiles/pullfiles.sh &> /home/akovachi/lrt_data/log/filetransfer.log
 
-2 1 * * * /home/akovachi/lrt_data/bashFiles/dataRoutines.sh
+2 1 * * * [Home]/lrt_data/bashFiles/dataRoutines.sh
 
-20 1 * * * /home/akovachi/lrt_data/bashFiles/sendEmail.sh
+20 1 * * * [Home]/lrt_data/bashFiles/sendEmail.sh
 
-0 */3 * * * /home/akovachi/lrt_data/bashFiles/getLrtData.sh
+0 */3 * * * [Home]/lrt_data/bashFiles/getLrtData.sh
 
  ```
  
