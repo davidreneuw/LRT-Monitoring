@@ -48,7 +48,17 @@ def create_rot_deg(dec, inc, anc=0):
     return rotate_tot
 
 def create_rot_matrix(desired, current):
-    """ Creates a rotation matrix from two vectors"""
+    """ 
+    Creates a rotation matrix from two vectors by using a skew symetric matrix and dot
+    and cross product
+    Read more here: https://en.wikipedia.org/wiki/Skew-symmetric_matrix#Infinitesimal_rotations
+    
+    :type desired: len(3) np.array
+    :param desired: the orientation we would like to rotate to
+    
+    :type current: len(3) np.array
+    :param current: the current vector that we would like to create a roation for
+    """
 
     # Create unit vector
     desired = desired/np.linalg.norm(desired)
@@ -56,15 +66,15 @@ def create_rot_matrix(desired, current):
 
     # Create needed terms
     cross = np.cross(desired, current)
-
     sin_phi = np.linalg.norm(cross)
     cos_phi = np.dot(desired, current)
-
+    
+    # Create skew-symmetric matrix
     scew_sym_matrix = np.array([
         [0, -cross[2], cross[1]],
         [cross[2], 0, -cross[0]],
         [-cross[1], cross[0], 0]])
-
+    # Skew symmetric matrix squared
     scew_sym_matrix_sqr = np.linalg.matrix_power(scew_sym_matrix, 2)
 
     identity = np.array([[1, 0, 0],
@@ -79,7 +89,15 @@ def create_rot_matrix(desired, current):
     return rot_matrix
 
 def calc_accuracy(data1, data2):
-    """ Determines the accuracy of one plot to resemble another"""
+    """ 
+    Determines the accuracy of one plot to resemble another
+    
+    :type data1: len(3>) np.array)
+    :param data1: data set 1 that will be compared
+    
+    :type data2: len(3>) np.array
+    :param data2: data set 2 that will be compared
+    """
     accuracy_here = np.array([0, 0, 0])
     for axis in range(3):
         temp = data2[axis] - data1[axis] 
@@ -89,6 +107,20 @@ def calc_accuracy(data1, data2):
                    accuracy_here[2]**2)
 
 def calc_range_dif(data1, data2):
+    """ 
+    Given two data sets, subtracts them and returns the range of
+    the subtraction
+    
+    :type data1: len(N) np.array
+    :param data1: data set 1 to be compared
+    
+    :type data2: len(N) np.array
+    :param data2: data set 2 to be compared
+    >>> calc_range_dif(np.array([1,2,3]), np.array([1,0,3])
+    >>> 1
+    >>> calc_range_dif(np.array([5,2,7]), np.array([2,2,10])
+    >>> 6
+    """
     temp = data2-data1
     return (np.amax(temp) - np.amin(temp))
 
@@ -109,13 +141,12 @@ def rotate_to_abs(data1, data2, make_plot=False,
     :type entire: Boolean
     :param entire: Rotate each point individualy
     """
+    
+    # Create copy of data
     raw = np.copy(data1)
     if  dec:
         # Change from dec/inc to absolute
         dec_inc = dec_inc_to_abs([dec, inc])
-
-    if len(data2) == 4:
-        data2[3] = np.sqrt(data2[0]**2 + data2[1]**2 + data2[2]**2)
 
     if not type(data1) is np.ndarray or not  len(data1) == 3:
         # Change to np array of 3 columns
@@ -124,6 +155,8 @@ def rotate_to_abs(data1, data2, make_plot=False,
 
     if entire:
         '''
+        If entire is true preform roation on each [x, y, z] triplet of data
+        
         Data is given in the form [[x1... xn], [y1... yn], [z1... zn]]
         and we need the form of [[x1 y1 z1]... [xn yn zn]]
         so we transpose the data
@@ -168,6 +201,8 @@ def rotate_to_abs(data1, data2, make_plot=False,
         data3 = np.matmul(raw.transpose(), rot_matrix).transpose()
 
     if make_plot:
+        """ This option is mostly for debugging to make sure
+        that the data is being rotated correctly"""
         names = ['X-X Diff', 'Y-Y Diff', 'Z-Z Diff']
         x = np.arange(len(data1[0])) / 3600
 
@@ -180,7 +215,31 @@ def rotate_to_abs(data1, data2, make_plot=False,
 
 def rotate_by_deg(data1, dec, inc, anc=0, plot=False, ref_data=None,
                   iterate=None, axis_equality=False, search_best=False):
-    """ Rotates data1 by dec, inc, in radians"""
+    """ 
+    Rotates data1 by dec, inc, in radians. The param anc is a rotation about
+    the x axis and was used mostly to see if it could provide an improved rotation
+    for this reason it defaults to 0 and can almost always be ignored
+    
+    :type data1: len(3) np.array
+    :param data1: data that will be rotated
+    :type dec: float
+    :param dec: angle in radians to rotate about z-axis
+    :type inc: float
+    :param inc: angle in radians to rotate about y-axis
+    :type anc: float
+    :params anc: angle in radians to rotate about x-axis"
+    :type plot: Boolean
+    :param plot: if true will output a plt.show() command
+    :type ref_data: np.array
+    :params ref_data: if given and the shape matches data1 it
+                     can be used to compare with data1
+    :type iterate: int
+    :param iterate: used to determine accuracy when finding best rotation
+    :type axis_equality: Boolean
+    :param axis_eqaulity: if true then when finding accuracy each axis difference
+                         will be normalized to 1. Not reccomened, bad results
+    :type search_best: Boolean
+    :param search_best: if true will attempt to find the best rotation"""
 
     if not type(data1) is np.ndarray or not  len(data1) == 3:
         # Change to np array of 3 columns
@@ -191,6 +250,8 @@ def rotate_by_deg(data1, dec, inc, anc=0, plot=False, ref_data=None,
     if iterate:
         # Creates the different rotations to be tested
         num_bins = iterate
+        # These shapes are revered because imshow puts the bins starting in the
+        # top left corner, so dec increases and inc decreases
         dec_rot = np.linspace(-dec, dec, num_bins)
         inc_rot = np.linspace(inc, -inc, num_bins)
         # Initiate the different arrays
@@ -231,20 +292,7 @@ def rotate_by_deg(data1, dec, inc, anc=0, plot=False, ref_data=None,
 
         if plot:
             x = np.arange(len(data1[0])) / 3600
-            fig, ax = plt.subplots(3, figsize=(15, 15))
-            #ax[0].set_title('LRS axis differences after rotation')
-            axis = ['X', 'Y', 'Z']
-
-            for iterate in range(3):
-                ax[iterate].plot(x, data1[iterate],
-                                 label='Rotated', color='r')
-                ax[iterate].plot(x, ref_data[iterate],
-                                 label='OTT', color='b')
-                ax[iterate].legend(loc=1)
-                ax[iterate].set_ylabel(axis[iterate])
-            ax[2].set_xlabel('Time(h)')
-            plt.show()
-
+            
             fig, ax = plt.subplots(3, figsize=(15, 15))
             for iterate in range(3):
                 ax[iterate].plot(x, (ref_data[iterate]-data1[iterate]),
@@ -263,14 +311,11 @@ def find_best_tri_rot(data1, data2, inc_size, return_rotated=False):
 
     :type data1: numpy array
     :param data1: the data set that will be rotated
-
     :type data2: numpy array
     :param data2: the ideal data set we want to model
-
     :type inc_size: float
     :param inc_size: the inital increment size to rotate by. This is
                      halfed when an iteration does not improve
-
     :type return_rotated: Boolean
     :param return_rotated: returns rotated data if True
                            returns rotation if False
@@ -339,14 +384,13 @@ def find_best_tri_rot(data1, data2, inc_size, return_rotated=False):
 def find_best_scalar(data1, data2, return_scaled=False):
     """
     Attempts to find the best scalar to multiply by the data1 to represent
-    data2
-
+    data2. Removes offset as the data was originally measured as only the offset
+    so that is what we want to scale
+    
     :type data1: nparray
     :param data1: data to be rescaled
-
     :type data2: nparray
     :param data2: data to be remodled as
-
     :type return_best: Boolean
     :param return_best: return the rescalled data if true
                         return the scallars if False    
@@ -354,22 +398,26 @@ def find_best_scalar(data1, data2, return_scaled=False):
     raw = np.copy(data1[:3])
     best_scalar = [1, 1, 1]
     for axis in range(3):
+        
         data1[axis] = data1[axis] - CURRENT_OFFSET[axis]
         data2[axis] = data2[axis] - CURRENT_OFFSET[axis]
+        
         current_range = calc_range_dif(raw[axis], data2[axis]) 
         is_best_found = False
         increment = .001
+        
         while not is_best_found:
+            # Check positive scalar
             positive_scalar = best_scalar[axis] + increment
             positive_change = calc_range_dif(
                 raw[axis]*(positive_scalar),
                 data2[axis])
-
+            # Check negative scalar
             negative_scalar = best_scalar[axis] - increment
             negative_change = calc_range_dif(
                 raw[axis]*(negative_scalar),
                 data2[axis])
-
+            # Is either scalar better than the current
             if (positive_change < current_range and
                 positive_change < negative_change):
                 current_range = positive_change
@@ -378,11 +426,11 @@ def find_best_scalar(data1, data2, return_scaled=False):
             elif negative_change < current_range:
                 current_range = negative_change
                 best_scalar[axis] = negative_scalar
-
+            # If not then the best scalar has been found
             else:
                 is_best_found = True
 
-
+    # Return either the scalar or the scaled data
     if return_scaled:
         print(best_scalar)
         for axis in range(3):
@@ -394,7 +442,7 @@ def find_best_scalar(data1, data2, return_scaled=False):
 
 
 def main():
-    """Main routine"""
+    """Main routine. Mostly used on a developer level. """
 
     parser = argparse.ArgumentParser(
         description="Rotate lrt site to desired format")
@@ -497,9 +545,6 @@ def main():
         find_best_tri_rot(data1,
                           data2,
                           .001)
-
-
-
 
 if __name__ == '__main__':
     main()
