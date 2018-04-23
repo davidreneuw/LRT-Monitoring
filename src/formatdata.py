@@ -17,12 +17,15 @@ Recent Changes:
 """
 # Default packages
 import subprocess
+import os.path
 from datetime import timedelta, datetime
 # 3rd party packages
 import numpy as np
 import pandas as pd
 from nptdms import TdmsFile
 from scipy import signal
+
+USER = os.path.expanduser('~')
 
 class UnknownFileType(Exception):
     pass
@@ -494,5 +497,5 @@ def make_files(year, month, day):
     """
     for loc in ['LRE', 'LRO', 'LRS']:
         subprocess.call(['mkdir', '-p',
-                         '/home/akovachi/lrt_data/plots/%s/%s/%s/%s'%(
-                             loc, year, month, day)])
+                         (USER + '/lrt_data/plots/%s/%s/%s/%s'%(
+                             loc, year, month, day))])

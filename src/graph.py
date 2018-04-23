@@ -33,10 +33,11 @@ from formatdata import Data, Date, make_files # custom
 
 
 # Creates logger
+USER=os.path.expanduser('~')
 date = Date(1)
-logging.filename = '/home/akovachi/lrt_data/log/graphing/graphing%s%s.log'%(
-    date.m, date.d)
-logging.config.fileConfig('/home/akovachi/lrt_data/logging.conf')
+logging.filename = (USER + '/lrt_data/log/graphing/graphing%s%s.log'%(
+    date.m, date.d))
+logging.config.fileConfig(USER + '/lrt_data/logging.conf')
 logger = logging.getLogger('graphing')
 
 #------CLASSES----#
@@ -51,7 +52,7 @@ class Config(): #customization options
         self.size = (15, 15) #size of plot
         self.samp_freq = samp_freq
         self.fmt = 'png'
-        self.savedir = '/home/akovachi/lrt_data/plots/'
+        self.savedir = (USER + '/lrt_data/plots/')
         self.hour = hour
         if isinstance(self.hour, int):
             self.hour = '%02d'%(hour)
@@ -73,7 +74,7 @@ class Config(): #customization options
     def direc(self, mode, date):
         """ Returns the directory that the data can be found"""
         if mode == 'sec':
-            return '/home/akovachi/lrt_data/ottSecData/%s/'%(date.y)
+            return (USER + '/lrt_data/ottSecData/%s/'%(date.y))
         if mode == 'secNew':
             return '/home/dcalp/lrt/{0}/RT1Hz/'.format(self.loc)
         if mode == 'v32Hz':
@@ -272,7 +273,7 @@ def __auto__(xback=2):
             logger.error(err)
     #---HOURPLOT---#
     try:
-        hourly_times_file ='/home/akovachi/lrt_data/lrtRecords/lrtRecords%s%s.txt'%(date2.m, date2.d)
+        hourly_times_file =(USER + '/lrt_data/lrtRecords/lrtRecords%s%s.txt'%(date2.m, date2.d))
         if os.path.isfile(hourly_times_file):
             hourly_times = pd.read_csv(hourly_times_file, sep=' ')
             hourly_times.drop(['YYYY', 'MM', 'DD', 'MI', 'D', 'MAG'], axis=1)

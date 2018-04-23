@@ -5,14 +5,16 @@ filtering it to 1hz and then resampling that data to 1hz
 """
 import logging
 import logging.config
+import os.path
 from formatdata import MakeData, Date, Data
 from correctrotation import find_best_scalar, find_best_tri_rot
 
 # Creates logger
+USER = os.path.expanduser('~')
 date = Date(0)
-logging.filename = '/home/akovachi/lrt_data/log/rt1hz/rt1hz%s%s.log'%(
-    date.m, date.d)
-logging.config.fileConfig('/home/akovachi/lrt_data/logging.conf')
+logging.filename = (USER + '/lrt_data/log/rt1hz/rt1hz%s%s.log'%(
+    date.m, date.d))
+logging.config.fileConfig(USER + '/lrt_data/logging.conf')
 logger = logging.getLogger('rt1hz')
 
 # fmt2 just takes a number and formats it to two digits before the decimal
@@ -46,7 +48,7 @@ def main(loc='LRE', xback=2):
             date = Date(xback + 2)
             data.add_tdms(loc, date, hour)
             ott = Data('sec', date, 'OTT', 
-                       '/home/akovachi/lrt_data/ottSecData/2018/')
+                       (USER + '/lrt_data/ottSecData/2018/')
 
             logger.info('Hour %s fine', hour)
 

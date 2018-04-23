@@ -4,6 +4,7 @@ with and declared correct orientation. The inputed direction can be either a
 declination & inclination pair or a group of X, Y, and Z measurments
 """
 import argparse
+import os.path
 # Third party packages
 import numpy as np
 import pandas as pd
@@ -12,6 +13,7 @@ import matplotlib.cm as cm
 from matplotlib.colors import LogNorm
 
 CURRENT_OFFSET = [17573.288, -4385.880, 50807.408]
+USER = os.path.expanduser('~')
 class DataAreNotSameLength(Exception):
     """ Custom Exception"""
     pass
@@ -495,7 +497,7 @@ def main():
         help='Data to be rotated')
     parser.add_argument(
         '-dir2',
-        default='/home/akovachi/lrt_data/ottSecData/2018/',
+        default=(USER + '/lrt_data/ottSecData/2018/'),
         help='Data to be rotated to location')
     args = parser.parse_args()
 

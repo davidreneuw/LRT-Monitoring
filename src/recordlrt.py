@@ -8,6 +8,7 @@ and output a text file for when there was activity
 # Default Packages
 import logging
 import logging.config
+import os.path
 from datetime import datetime
 # Third Party Packages
 import numpy as np
@@ -15,10 +16,11 @@ import numpy as np
 from formatdata import Date, Data, get_std_dev
 
 # Creates logger
+USER = os.path.expanduser('~')
 date = Date(0)
-logging.filename = '/home/akovachi/lrt_data/log/recordlrt/recordlrt%s%s.log'%(
-        date.m,date.d)
-logging.config.fileConfig('/home/akovachi/lrt_data/logging.conf')
+logging.filename = (USER + '/lrt_data/log/recordlrt/recordlrt%s%s.log'%(
+        date.m,date.d))
+logging.config.fileConfig(USER + '/lrt_data/logging.conf')
 logger = logging.getLogger('recordlrt')
 
 fmt2 = lambda x: "%02d" % x  #format hours,month,day
@@ -54,7 +56,7 @@ def main(xback=1):
 
 
 
-    file_name = ('/home/akovachi/lrt_data/lrtRecords/' +
+    file_name = (USER + '/lrt_data/lrtRecords/' +
                  'lrtRecords%s%s.txt'%(date.m, date.d))
     logger.info('Working on file: %s', file_name)
 
@@ -126,7 +128,7 @@ def record_data(data, loc, date, hour, channel):
     :param channel: refers to the direction (i.e. channel) being looked at
                     0 being x, 1 being y, 2 being z, 3 being f
     """
-    file_name = ('/home/akovachi/lrt_data/lrtRecords/' +
+    file_name = (USER + '/lrt_data/lrtRecords/' +
                  'lrtRecords%s%s.txt'%(date.m, date.d))
 
     logger.debug(file_name)

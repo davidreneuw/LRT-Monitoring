@@ -7,6 +7,7 @@ from datetime import date, timedelta, datetime
 from pathlib import Path
 import subprocess
 
+USER = os.path.expanduser('~')
 # Creates logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -17,7 +18,7 @@ month = datetime.today().strftime('%m')
 
 # Sets handler
 handler = logging.FileHandler(
-        '/home/akovachi/lrt_data/log/checkfiles/checkfiles%s%s.log'%(month, day)
+        USER + '/lrt_data/log/checkfiles/checkfiles%s%s.log'%(month, day)
         )
 logger.addHandler(handler)
 
