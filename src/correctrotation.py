@@ -434,7 +434,6 @@ def find_best_scalar(data1, data2, return_scaled=False):
 
     # Return either the scalar or the scaled data
     if return_scaled:
-        print(best_scalar)
         for axis in range(3):
             data1[axis] = data1[axis]*best_scalar[axis] + CURRENT_OFFSET[axis]
         return data1[:3]
