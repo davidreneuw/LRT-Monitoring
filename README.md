@@ -89,7 +89,7 @@ do it manually.
 ## NPTDMS installation
 
 1. Navigate to:
-    `https://github.com/adamreeve/npTDMS`
+    https://github.com/adamreeve/npTDMS
 
 2. Download the zip file which should show up as: `npTDMS-master.zip`
 
