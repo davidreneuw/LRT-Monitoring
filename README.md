@@ -103,13 +103,13 @@ do it manually.
 # Background
 
 By using the package `npTDMS` (an addition to numpy package) we can read the `.tdms` file type.
-The values can be reached refering to a specific node on the tree. A tdms file is broken up into different types of objects;the root object, the group object, and the channel object. 
+The values can be reached refering to a specific node on the tree. A tdms file is broken up into different types of objects; the root object, the group object, and the channel object. 
 
 The root object records background info such as file name, title, and author.
-The group and channel objects are related. The group object defines the type ofdata you want to look at (in our case all of the data is either 'v32Hz' or 'v100Hz' group).The channel refers to which record device you wish to look under.
+The group and channel objects are related. The group object defines the type ofdata you want to look at (in our case all of the data is either 'v32Hz' or 'v100Hz' group). The channel refers to which record device you wish to look under.
 
 For example:
-Suppose you had a device that recorded 100Hz and 32Hz with 2 channels.Then you would be able to look up data under
+Suppose you had a device that recorded 100Hz and 32Hz with 2 channels. Then you would be able to look up data under
 
 <'100Hz', 'channel 1'>
 
@@ -145,15 +145,14 @@ There are 4 main python scripts:
 
 `formatdata.py`
 - Includes the classes for collecting, compiling and altering data 
-- Has individual attributes for x, y, z, f 
-- In the future will just have a single attribute list for x, y, z, f
+- Has attributes for the axial components as well as different methods for manipulating the data
 
 `rt1hz.py `
 - Uses `formatdata.py` 
 - Reads through 32hz tdms files and creates 1hz files 
 
 `recordlrt.py `
-- Uses `formatdata.py `
+- Uses `formatdata.py ` , `correctrotation.py`
 - Reads through 32hz tdms files and creates a list of times that had   
   high noise and times of possible interferance 
 - Returns a fair number of false positives and could be refined
@@ -162,6 +161,10 @@ There are 4 main python scripts:
 - Uses `formatdata.py `
 - Plots Entire days using the created 1hz files 
 - Plots hourly times of those returned by `recordlrt.py`
+
+`correctrotation.py`
+- Used by `rt1hz`
+- Attempts to correct missalignment in the lrt sites
   
 ## Manual Usage  
 
@@ -205,7 +208,7 @@ Consider looking in the source for more options and experimenting.
  To automate these procedures add the following to you `crontab -e` file
  
  ```
- 1 1 * * * [Home]/lrt_data/bashFiles/pullfiles.sh &> /home/akovachi/lrt_data/log/filetransfer.log
+ 1 1 * * * [Home]/lrt_data/bashFiles/pullfiles.sh &> [Home]/lrt_data/log/filetransfer.log
 
 2 1 * * * [Home]/lrt_data/bashFiles/dataRoutines.sh
 
