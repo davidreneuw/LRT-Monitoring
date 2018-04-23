@@ -86,6 +86,19 @@ this line to your profile on its own, and it does on some
 linux servers. It does not on this one and thus we have to
 do it manually.
         
+## NPTDMS installation
+
+1. Navigate to:
+    `https://github.com/adamreeve/npTDMS`
+
+2. Download the zip file which should show up as: `npTDMS-master.zip`
+
+2.b. Unzip the file 
+
+3. Move the unziped file to you `/home/YOURFILE` directory
+
+4. Navigate into the `npTDMS-master` folder and type:
+    `python setup.py install`
 
 # Background
 
