@@ -36,9 +36,9 @@ from formatdata import Data, Date, make_files # custom
 # Creates logger
 USER=os.path.expanduser('~')
 date = Date(1)
-logging.filename = (USER + '/lrt_data/log/graphing/graphing%s%s.log'%(
+logging.filename = (USER + '/cRio-data-reduction/log/graphing/graphing%s%s.log'%(
     date.m, date.d))
-logging.config.fileConfig(USER + '/lrt_data/logging.conf')
+logging.config.fileConfig(USER + '/cRio-data-reduction/logging.conf')
 logger = logging.getLogger('graphing')
 
 #------CLASSES----#
@@ -50,7 +50,7 @@ class Config(): #customization options
     """Contains attributes and methods related to file specifics"""
     def __init__(self, date, loc, samp_freq, hour):
         self.config = cp.RawConfigParser()
-        self.config.read((USER + '/lrt_data/option.conf'))
+        self.config.read((USER + '/cRio-data-reduction/option.conf'))
         self.loc = loc
         self.size = (self.config.getint('GRAPH', 'size_x'), 
                      self.config.getint('GRAPH', 'size_y')) #size of plot
@@ -276,7 +276,7 @@ def __auto__(xback=2):
             logger.error(err)
     #---HOURPLOT---#
     try:
-        hourly_times_file =(USER + '/lrt_data/lrtRecords/lrtRecords%s%s.txt'%(date2.m, date2.d))
+        hourly_times_file =(USER + '/cRio-data-reduction/lrtRecords/lrtRecords%s%s.txt'%(date2.m, date2.d))
         if os.path.isfile(hourly_times_file):
             hourly_times = pd.read_csv(hourly_times_file, sep=' ')
             hourly_times.drop(['YYYY', 'MM', 'DD', 'MI', 'D', 'MAG'], axis=1)

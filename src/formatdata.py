@@ -496,5 +496,5 @@ def make_files(year, month, day):
     """
     for loc in ['LRE', 'LRO', 'LRS']:
         subprocess.call(['mkdir', '-p',
-                         (USER + '/lrt_data/plots/%s/%s/%s/%s'%(
+                         (USER + '/cRio-data-reduction/plots/%s/%s/%s/%s'%(
                              loc, year, month, day))])

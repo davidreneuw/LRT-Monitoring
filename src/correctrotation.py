@@ -12,8 +12,9 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.colors import LogNorm
 
-CURRENT_OFFSET = [17573.288, -4385.880, 50807.408]
+CURRENT_OFFSET = [17593.342, -4278.744, 50860.816]
 USER = os.path.expanduser('~')
+
 class DataAreNotSameLength(Exception):
     """ Custom Exception"""
     pass
@@ -496,7 +497,7 @@ def main():
         help='Data to be rotated')
     parser.add_argument(
         '-dir2',
-        default=(USER + '/lrt_data/ottSecData/2018/'),
+        default=(USER + '/cRio-data-reduction/ottSecData/2018/'),
         help='Data to be rotated to location')
     args = parser.parse_args()
 

@@ -18,7 +18,7 @@ month = datetime.today().strftime('%m')
 
 # Sets handler
 handler = logging.FileHandler(
-        USER + '/lrt_data/log/checkfiles/checkfiles%s%s.log'%(month, day)
+        USER + '/cRio-data-reduction/log/checkfiles/checkfiles%s%s.log'%(month, day)
         )
 logger.addHandler(handler)
 

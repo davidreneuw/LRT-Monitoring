@@ -1,4 +1,7 @@
 """
+Andrew Kovachik
+
+@ Natural Resources Canada
 This file will search through LRT folders and create a text file for
 the 1hz real time data. This data is created by taking the 32hz data
 filtering it to 1hz and then resampling that data to 1hz
@@ -12,9 +15,9 @@ from correctrotation import find_best_scalar, find_best_tri_rot
 # Creates logger
 USER = os.path.expanduser('~')
 date = Date(0)
-logging.filename = (USER + '/lrt_data/log/rt1hz/rt1hz%s%s.log'%(
+logging.filename = (USER + '/cRio-data-reduction/log/rt1hz/rt1hz%s%s.log'%(
     date.m, date.d))
-logging.config.fileConfig(USER + '/lrt_data/logging.conf')
+logging.config.fileConfig(USER + '/cRio-data-reduction/logging.conf')
 logger = logging.getLogger('rt1hz')
 
 # fmt2 just takes a number and formats it to two digits before the decimal
@@ -48,7 +51,7 @@ def main(loc='LRE', xback=2):
             date = Date(xback + 2)
             data.add_tdms(loc, date, hour)
             ott = Data('sec', date, 'OTT', 
-                       (USER + '/lrt_data/ottSecData/2018/'))
+                       (USER + '/cRio-data-reduction/ottSecData/2018/'))
 
             logger.info('Hour %s fine', hour)
 
