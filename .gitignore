@@ -1,8 +1,6 @@
 plots/**
 lrtRecords/**
 TextFiles/**
-bashFiles/getLrtData.sh
-bashFiles/pullfiles.sh
 ottSecData/**
 src/savevars.txt
 log/**
