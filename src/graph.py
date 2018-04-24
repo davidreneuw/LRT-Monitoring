@@ -22,6 +22,7 @@ import time
 import logging
 import logging.config
 import os.path
+import configparser as cp
 # Third party packages
 import numpy as np
 import pandas as pd
@@ -48,11 +49,14 @@ class FailedToCollectDataError(Exception):
 class Config(): #customization options
     """Contains attributes and methods related to file specifics"""
     def __init__(self, date, loc, samp_freq, hour):
+        self.config = cp.RawConfigParser()
+        self.config.read((USER + '/lrt_data/option.conf'))
         self.loc = loc
-        self.size = (15, 15) #size of plot
+        self.size = (self.config.getint('GRAPH', 'size_x'), 
+                     self.config.getint('GRAPH', 'size_y')) #size of plot
+        self.savedir = (self.config.get('GRAPH', 'save_dir'))
         self.samp_freq = samp_freq
         self.fmt = 'png'
-        self.savedir = (USER + '/lrt_data/plots/')
         self.hour = hour
         if isinstance(self.hour, int):
             self.hour = '%02d'%(hour)
@@ -74,12 +78,12 @@ class Config(): #customization options
     def direc(self, mode, date):
         """ Returns the directory that the data can be found"""
         if mode == 'sec':
-            return (USER + '/lrt_data/ottSecData/%s/'%(date.y))
+            return (self.config.get('GRAPH', 'sec_dir').format(date.y))
         if mode == 'secNew':
-            return '/home/dcalp/lrt/{0}/RT1Hz/'.format(self.loc)
+            return (self.config.get('GRAPH', 'secNew_dir').format(self.loc))
         if mode == 'v32Hz':
-            return '/home/dcalp/lrt/{0}/Serial/{1}/'.format(self.loc,
-                                                            date.y)
+            return (self.config.get('GRAPH', 'v32Hz_dir').format(self.loc,
+                                                                 date.y))
 
 class AxisGet():
     """ Used to specify the range that the axis will show and their scale"""
@@ -142,16 +146,15 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
         ott = Data('sec', date, 'OTT', config.direc('sec', date), hour=hour)
         logger.info('Got OTT data')
     except FileNotFoundError as err:
-        raise FailedToCollectDataError('FailedToCollectDataError: ' +
-                                       'Could not find: OTT sec data. ' +
+        raise FailedToCollectDataError('Could not find: OTT sec data. ' +
                                        '%s\%s\%s Hour:%s'
                                        %(date.y, date.m, date.d, hour))
+
     try:
         lrt = Data(mode, date, loc, config.direc(mode, date), hour=hour)
         logger.info('Got LRT data')
     except FileNotFoundError as err:
-        raise FailedToCollectDataError('FailedToCollectDataError: ' +
-                                       'Could not find: %s %s data. '
+        raise FailedToCollectDataError('Could not find: %s %s data. '
                                        %(loc, mode) +
                                        '%s\%s\%s Hour:%s'
                                        %(date.y, date.m, date.d, hour))
@@ -295,11 +298,10 @@ def __auto__(xback=2):
                      32,
                      hour=int(hourly_times.iloc[iterate].HH)
                     )
-            except:
-                raise
+            except FailedToCollectDataError as err:
+                logger.error(err)
 
     print('--- %s seconds ---'%(time.time() - start_time))
 
 if __name__ == "__main__":
-    for x in range(4):
-        __auto__(xback=x)
+    __auto__()
