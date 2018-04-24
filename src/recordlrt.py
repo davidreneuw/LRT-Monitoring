@@ -9,6 +9,7 @@ and output a text file for when there was activity
 import logging
 import logging.config
 import os.path
+import configparser as cp
 from datetime import datetime
 # Third Party Packages
 import numpy as np
@@ -29,19 +30,19 @@ fmt3 = lambda x: "%03d" % x  #format Day of year
 
 class Config(): #customization options
     def __init__(self, date, samp_freq):
-
+        self.config = cp.RawConfigParser()
+        self.config.read((USER + '/lrt_data/option.conf'))
         self.samp_freq = samp_freq
         self.date = date
-        self.save = ('add latter')
-        self.loc = None
+        self.save = self.config.get('RECORD', 'save_dir') 
+        self.lrt_dir = self.config.get('RECORD', 'lrt_dir')
         self.dir = None
 
     def direc(self, loc):
         """ Creates a directory for the location specified"""
 
         self.loc = loc
-        self.dir = ('/home/dcalp/lrt/{0}/Serial/{1}/'.format(
-            self.loc, self.date.y))
+        self.dir = (self.lrt_dir.format(self.loc, self.date.y))
 
 
 def main(xback=1):
@@ -56,8 +57,7 @@ def main(xback=1):
 
 
 
-    file_name = (USER + '/lrt_data/lrtRecords/' +
-                 'lrtRecords%s%s.txt'%(date.m, date.d))
+    file_name = (cfg.save + 'lrtRecords%s%s.txt'%(date.m, date.d))
     logger.info('Working on file: %s', file_name)
 
     with open(file_name, 'w', 1) as data_base:
@@ -91,7 +91,8 @@ def main(xback=1):
                     )
 
                     if np.any(spikes):
-                        record_data(spikes[0], loc, date, fmt2(hour), channel)
+                        record_data(spikes[0], loc, date, 
+                                    fmt2(hour), channel, file_name)
 
             except FileNotFoundError:
                 logger.warning('File Not Found %s%s%s%s[%s]v%sHz.tdms \
@@ -107,7 +108,7 @@ def main(xback=1):
                 raise
 
 
-def record_data(data, loc, date, hour, channel):
+def record_data(data, loc, date, hour, channel, file_name):
     """
     Goes through data and records info if there is a high
     amount of points beyond standard deviation
@@ -128,8 +129,6 @@ def record_data(data, loc, date, hour, channel):
     :param channel: refers to the direction (i.e. channel) being looked at
                     0 being x, 1 being y, 2 being z, 3 being f
     """
-    file_name = (USER + '/lrt_data/lrtRecords/' +
-                 'lrtRecords%s%s.txt'%(date.m, date.d))
 
     logger.debug(file_name)
     logger.debug(data)
