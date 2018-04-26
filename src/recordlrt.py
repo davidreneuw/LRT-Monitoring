@@ -11,6 +11,7 @@ and output a text file for when there was activity
 import logging
 import logging.config
 import os.path
+from os.path import expanduser
 import configparser as cp
 from datetime import datetime
 # Third Party Packages
@@ -19,7 +20,7 @@ import numpy as np
 from formatdata import Date, Data, get_std_dev
 
 # Creates logger
-USER = os.path.expanduser('~')
+USER = expanduser('~')
 date = Date(0)
 logging.filename = (USER + '/cRio-data-reduction/log/recordlrt/recordlrt%s%s.log'%(
         date.m,date.d))
@@ -36,8 +37,8 @@ class Config(): #customization options
         self.config.read((USER + '/cRio-data-reduction/option.conf'))
         self.samp_freq = samp_freq
         self.date = date
-        self.save = self.config.get('RECORD', 'save_dir') 
-        self.lrt_dir = self.config.get('RECORD', 'lrt_dir')
+        self.save = expanduser(self.config.get('RECORD', 'save_dir'))
+        self.lrt_dir = expanduser(self.config.get('RECORD', 'lrt_dir'))
         self.dir = None
 
     def direc(self, loc):

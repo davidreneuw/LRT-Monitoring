@@ -22,6 +22,7 @@ import time
 import logging
 import logging.config
 import os.path
+from os.path import expanduser
 import configparser as cp
 # Third party packages
 import numpy as np
@@ -34,7 +35,7 @@ from formatdata import Data, Date, make_files # custom
 
 
 # Creates logger
-USER=os.path.expanduser('~')
+USER=expanduser('~')
 date = Date(1)
 logging.filename = (USER + '/cRio-data-reduction/log/graphing/graphing%s%s.log'%(
     date.m, date.d))
@@ -54,7 +55,7 @@ class Config(): #customization options
         self.loc = loc
         self.size = (self.config.getint('GRAPH', 'size_x'), 
                      self.config.getint('GRAPH', 'size_y')) #size of plot
-        self.savedir = (self.config.get('GRAPH', 'save_dir'))
+        self.savedir = expanduser((self.config.get('GRAPH', 'save_dir')))
         self.samp_freq = samp_freq
         self.fmt = 'png'
         self.hour = hour
@@ -78,12 +79,13 @@ class Config(): #customization options
     def direc(self, mode, date):
         """ Returns the directory that the data can be found"""
         if mode == 'sec':
-            return (self.config.get('GRAPH', 'sec_dir').format(date.y))
+            direc = (self.config.get('GRAPH', 'sec_dir').format(date.y))
         if mode == 'secNew':
-            return (self.config.get('GRAPH', 'secNew_dir').format(self.loc))
+            direc = (self.config.get('GRAPH', 'secNew_dir').format(self.loc))
         if mode == 'v32Hz':
-            return (self.config.get('GRAPH', 'v32Hz_dir').format(self.loc,
-                                                                 date.y))
+            direc = (self.config.get('GRAPH', 'v32Hz_dir').format(self.loc,
+                                                                date.y))
+        return expanduser(direc)
 
 class AxisGet():
     """ Used to specify the range that the axis will show and their scale"""
@@ -255,7 +257,7 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
 
     logger.info('Plot completed and saved to %s', config.save)
 
-def __auto__(xback=2):
+def __auto__(xback=1):
 
     date2 = Date(xback)
 

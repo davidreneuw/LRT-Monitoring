@@ -29,7 +29,7 @@ fmt5 = lambda x: "%05d" % x
 class FailedToCollectDataError(Exception):
     pass
 
-def main(loc='LRE', xback=2):
+def main(loc='LRE', xback=1):
 
     data = MakeData() # start data class
 
@@ -113,6 +113,7 @@ def main(loc='LRE', xback=2):
             time, mili = divmod(time, 1)
             minute, second = divmod(time, 60)
             hour, minute = divmod(minute, 60)
+            hour = hour%24
             
             mili = str(mili).split('.')
             time = "%02d:%02d:%02d:%s" % (hour, minute, 
