@@ -7,9 +7,9 @@ Now in the terminal type `$ git clone [Copied directory]`
 
 Upon proper installation the file structure should appear as the following 
 ```
-lrt_data
+$HOME
 |-- anaconda3
-|-- lrt_data
+|--cRio-data-reduction 
 |   |-- ottSecData (D)
 |   |-- lrtRecords (D)
 |   |-- logging.conf
@@ -212,21 +212,16 @@ Consider looking in the source for more options and experimenting.
 
 2 1 * * * [Home]/lrt_data/bashFiles/dataRoutines.sh
 
-20 1 * * * [Home]/lrt_data/bashFiles/sendEmail.sh
+0 2 * * * [Home]/lrt_data/bashFiles/sendEmail.sh
 
 0 */3 * * * [Home]/lrt_data/bashFiles/getLrtData.sh
 
  ```
  
-In each of the bash files the absolute directory will have to be changed to the users own name.
 
-As well, a  similar change needs to be made in each of the python scripts about where to find the logging config
+No further editing should be need to have the program begin to run. It is possible that a file directory was not moved
+over to have an abstract location and if this arises it should only need to be edited to the expected formation.
 
-```
-logging.filename = '[project location]/log/graphing/graphing%s%s.log'%(
-        date.m,date.d)
-logging.config.fileConfig('[project location]/logging.conf')
-```
 
 ## SSH Connection
 
