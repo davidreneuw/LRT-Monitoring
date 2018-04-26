@@ -257,7 +257,7 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
 
     logger.info('Plot completed and saved to %s', config.save)
 
-def __auto__(xback=1):
+def __auto__(xback=2):
 
     date2 = Date(xback)
 

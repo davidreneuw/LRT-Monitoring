@@ -48,7 +48,7 @@ class Config(): #customization options
         self.dir = (self.lrt_dir.format(self.loc, self.date.y))
 
 
-def main(xback=1):
+def main(xback=2):
     """
     Goes through the past day of data and creates a file for the
     times which were very active

@@ -29,7 +29,7 @@ fmt5 = lambda x: "%05d" % x
 class FailedToCollectDataError(Exception):
     pass
 
-def main(loc='LRE', xback=1):
+def main(loc='LRE', xback=2):
 
     data = MakeData() # start data class
 
