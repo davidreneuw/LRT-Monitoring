@@ -1,3 +1,8 @@
+My contact info if you have questions or concerns
+Andrew Kovachik
+Cell: 226-228-6957
+Email: kovachik.andrew@gmail.com
+
 # Installation
 On a linux server navigate to the home directory
 
