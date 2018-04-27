@@ -31,14 +31,14 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 # Custom packages
-from formatdata import Data, Date, make_files # custom
+from formatdata import Data, Date, make_files
 
 
 # Creates logger
 USER=expanduser('~')
-date = Date(1)
+date_log = Date(1)
 logging.filename = (USER + '/cRio-data-reduction/log/graphing/graphing%s%s.log'%(
-    date.m, date.d))
+    date_log.m, date_log.d))
 logging.config.fileConfig(USER + '/cRio-data-reduction/logging.conf')
 logger = logging.getLogger('graphing')
 
@@ -147,9 +147,9 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
     try:
         ott = Data('sec', date, 'OTT', config.direc('sec', date), hour=hour)
         logger.info('Got OTT data')
-    except FileNotFoundError as err:
+    except FileNotFoundError:
         raise FailedToCollectDataError('Could not find: OTT sec data. ' +
-                                       '%s\%s\%s Hour:%s'
+                                       '%s\\%s\\%s Hour:%s'
                                        %(date.y, date.m, date.d, hour))
 
     try:
@@ -158,7 +158,7 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
     except FileNotFoundError as err:
         raise FailedToCollectDataError('Could not find: %s %s data. '
                                        %(loc, mode) +
-                                       '%s\%s\%s Hour:%s'
+                                       '%s\\%s\\%s Hour:%s'
                                        %(date.y, date.m, date.d, hour))
     # Apply all data maniplulation needed
     # TODO: Make options for different data manipulations
@@ -178,7 +178,7 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
 
     # Different names for axis depending on options given
     if  mode == 'v32Hz' or mode == 'v100Hz':
-        scale, span = 'Min', ('Hour '+'%02d'%(hour)+'00')
+        scale, span = 'Min', ('Hour ' + '%02d'%(hour) + '00')
     else:
         scale, span = 'Hour', 'Whole Day'
 
@@ -278,7 +278,8 @@ def __auto__(xback=2):
             logger.error(err)
     #---HOURPLOT---#
     try:
-        hourly_times_file =(USER + '/cRio-data-reduction/lrtRecords/lrtRecords%s%s.txt'%(date2.m, date2.d))
+        hourly_times_file = (USER + '/cRio-data-reduction/lrtRecords/lrtRecords%s%s.txt'
+            %(date2.m, date2.d))
         if os.path.isfile(hourly_times_file):
             hourly_times = pd.read_csv(hourly_times_file, sep=' ')
             hourly_times.drop(['YYYY', 'MM', 'DD', 'MI', 'D', 'MAG'], axis=1)
