@@ -7,7 +7,7 @@ from datetime import date, timedelta, datetime
 from pathlib import Path
 import subprocess
 
-USER = os.path.expanduser('~')
+USER = os.path.expanduser('~') + '/git'
 # Creates logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -18,7 +18,7 @@ month = datetime.today().strftime('%m')
 
 # Sets handler
 handler = logging.FileHandler(
-        USER + '/cRio-data-reduction/log/checkfiles/checkfiles%s%s.log'%(month, day)
+        USER + '/crio-data-reduction/log/checkfiles/checkfiles%s%s.log'%(month, day)
         )
 logger.addHandler(handler)
 
