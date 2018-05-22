@@ -20,11 +20,11 @@ import numpy as np
 from formatdata import Date, Data, get_std_dev
 
 # Creates logger
-USER = expanduser('~')
+USER = expanduser('~') + '/git'
 date = Date(0)
-logging.filename = (USER + '/cRio-data-reduction/log/recordlrt/recordlrt%s%s.log'%(
+logging.filename = (USER + '/crio-data-reduction/log/recordlrt/recordlrt%s%s.log'%(
         date.m,date.d))
-logging.config.fileConfig(USER + '/cRio-data-reduction/logging.conf')
+logging.config.fileConfig(USER + '/crio-data-reduction/logging.conf')
 logger = logging.getLogger('recordlrt')
 
 fmt2 = lambda x: "%02d" % x  #format hours,month,day
@@ -34,7 +34,7 @@ fmt3 = lambda x: "%03d" % x  #format Day of year
 class Config(): #customization options
     def __init__(self, date, samp_freq):
         self.config = cp.RawConfigParser()
-        self.config.read((USER + '/cRio-data-reduction/option.conf'))
+        self.config.read((USER + '/crio-data-reduction/option.conf'))
         self.samp_freq = samp_freq
         self.date = date
         self.save = expanduser(self.config.get('RECORD', 'save_dir'))

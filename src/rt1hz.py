@@ -13,11 +13,11 @@ from formatdata import MakeData, Date, Data
 from correctrotation import find_best_scalar, find_best_tri_rot
 
 # Creates logger
-USER = os.path.expanduser('~')
+USER = os.path.expanduser('~') + '/git' #git included for local repo
 date = Date(0)
-logging.filename = (USER + '/cRio-data-reduction/log/rt1hz/rt1hz%s%s.log'%(
+logging.filename = (USER + '/crio-data-reduction/log/rt1hz/rt1hz%s%s.log'%(
     date.m, date.d))
-logging.config.fileConfig(USER + '/cRio-data-reduction/logging.conf')
+logging.config.fileConfig(USER + '/crio-data-reduction/logging.conf')
 logger = logging.getLogger('rt1hz')
 
 # fmt2 just takes a number and formats it to two digits before the decimal
@@ -48,10 +48,10 @@ def main(loc='LRE', xback=2):
     # MAIN DAY
         for hour in range(24):
             hour = fmt2(hour)
-            date = Date(xback + 2)
+            date = Date(xback)
             data.add_tdms(loc, date, hour)
             ott = Data('sec', date, 'OTT', 
-                       (USER + '/cRio-data-reduction/ottSecData/2018/'))
+                       (USER + '/crio-data-reduction/ottSecData/2018/'))
 
             logger.info('Hour %s fine', hour)
 
