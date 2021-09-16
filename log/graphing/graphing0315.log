@@ -1,1 +1,3 @@
-graphing - ERROR - FailedToCollectDataError: Could not find: LRS secNew data. 2018\03\14 Hour:None
+graphing - ERROR - Could not find: LRE secNew data. 2021\03\14 Hour:None
+graphing - ERROR - Could not find: LRO secNew data. 2021\03\14 Hour:None
+graphing - ERROR - Could not find: LRS secNew data. 2021\03\14 Hour:None

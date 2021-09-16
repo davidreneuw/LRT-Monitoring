@@ -1,4 +1,4 @@
-#!/home/akovachi/anaconda3/bin/python
+#!/nrn/home/NRN/dcalp/anaconda3/bin/python
 
 """
 Author:
@@ -35,11 +35,11 @@ from formatdata import Data, Date, make_files
 
 
 # Creates logger
-USER=expanduser('~') + '/git'
+USER=expanduser('~')
 date_log = Date(1)
-logging.filename = (USER + '/crio-data-reduction/log/graphing/graphing%s%s.log'%(
+logging.filename = (USER + '/lrtOps/git/crio-data-reduction/log/graphing/graphing%s%s.log'%(
     date_log.m, date_log.d))
-logging.config.fileConfig(USER + '/crio-data-reduction/logging.conf')
+logging.config.fileConfig(USER + '/lrtOps/git/crio-data-reduction/logging.conf')
 logger = logging.getLogger('graphing')
 
 #------CLASSES----#
@@ -51,7 +51,7 @@ class Config(): #customization options
     """Contains attributes and methods related to file specifics"""
     def __init__(self, date, loc, samp_freq, hour):
         self.config = cp.RawConfigParser()
-        self.config.read((USER + '/crio-data-reduction/option.conf'))
+        self.config.read((USER + '/lrtOps/git/crio-data-reduction/option.conf'))
         self.loc = loc
         self.size = (self.config.getint('GRAPH', 'size_x'), 
                      self.config.getint('GRAPH', 'size_y')) #size of plot
@@ -278,7 +278,7 @@ def __auto__(xback=2):
             logger.error(err)
     #---HOURPLOT---#
     try:
-        hourly_times_file = (USER + '/crio-data-reduction/lrtRecords/lrtRecords%s%s.txt'
+        hourly_times_file = (USER + '/lrtOps/git/crio-data-reduction/lrtRecords/lrtRecords%s%s.txt'
             %(date2.m, date2.d))
         if os.path.isfile(hourly_times_file):
             hourly_times = pd.read_csv(hourly_times_file, sep=' ')

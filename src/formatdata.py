@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 from nptdms import TdmsFile
 from scipy import signal
+import logging
 
 USER = os.path.expanduser('~')
 
@@ -94,6 +95,9 @@ class Data():
         elif self.filetype == 'v32Hz':
             self.file = '{dty}{site}{y}{m}{d}[{h}]v32Hz.tdms'.format(**frmt)
             self.samp_freq = 32
+        elif self.filetype == 'v32HzVoltTemp':
+            self.file = '{dty}{site}{y}{m}{d}[{h}]v32HzVoltTemp.tdms'.format(**frmt)
+            self.samp_freq = 32
 
         elif self.filetype == 'v100Hz':
             self.file = '{dty}{site}{y}{m}{d}[{h}]v100Hz.tdms'.format(**frmt)
@@ -105,7 +109,7 @@ class Data():
 
 
 
-        if not (self.filetype == 'v32Hz' or self.filetype == 'v100Hz'):
+        if not (self.filetype == 'v32Hz' or self.filetype == 'v32HzVoltTemp' or self.filetype == 'v100Hz'):
 
             if self.filetype == 'secNew':
                 # time looks like HH:MM:SS:MSS
@@ -134,7 +138,6 @@ class Data():
                         data_frame.y,
                         data_frame.z,
                         data_frame.f]
-
         else:
             self.file = TdmsFile(self.file)
             time = self.file.object(self.filetype, 'sec of day').data/60
@@ -152,7 +155,7 @@ class Data():
         self.spikes = [0, 0, 0, 0]
         self.Fstar = None
 
-        if self.hour and not (filetype == 'v32Hz' or filetype == 'v100Hz'):
+        if self.hour and not (filetype == 'v32Hz' or filetype == 'v32HzVoltTemp' or filetype == 'v100Hz'):
             self.hour_range()
 
 
@@ -266,16 +269,17 @@ class MakeData():
 
     def chop(self, chop1, chop2):
         """Chops edges of paramaters"""
-        for iterate in range(0, 3):
+        for iterate in range(len(self.data)):
             self.data[iterate] = self.data[iterate][chop1:-chop2]
         self.time = self.time[chop1:-chop2]
 
-    def add_tdms(self, loc, date, hour, ppm=False):
+    def add_tdms(self, loc, date, hour, ppm=False, voltTemp=False):
 
-        datafile = GetTdms(loc, date, hour, ppm)
-
+        datafile = GetTdms(loc, date, hour, ppm, voltTemp)
         if ppm:
             self.add_f(datafile)
+        elif voltTemp:
+            self.add_voltTemp(datafile)
         else:
             self.add_xyz(datafile)
 
@@ -293,14 +297,15 @@ class MakeData():
         :param samp_freq: current sampling frequency
         """
         dif = -abs(samp_freq*60*60*26 - len(self.data[0]))
-        cnt = int(len(self.time)/desr_freq)
+        cnt = round(len(self.time)/desr_freq)
 
-        for iterate in range(0, 3):
+        for iterate in range(len(self.data)):
             self.data[iterate] = butter_low_pass(self.data[iterate],
                                                  filt_freq,
                                                  samp_freq)
             self.data[iterate] = self.data[iterate][::cnt]
             self.data[iterate] = self.data[iterate][:desr_freq]
+        
         self.time = self.time[::cnt] 
         self.time = self.time[:desr_freq]
     def add_xyz(self, data):
@@ -311,14 +316,31 @@ class MakeData():
         :param data: mag data file
         """
         tdms = data.file
-        for iterate in range(0, 3):
-            group = 'v32Hz'
+        for iterate in range(len(self.data)):
+            group = 'v100Hz'
             channel = 'channel %s'%(iterate+1)
             self.data[iterate] = np.hstack((self.data[iterate],
                                             tdms.object(group, channel).data))
         self.time = np.hstack((self.time, 
                                tdms.object(group, 'sec of day').data))
 
+    def add_voltTemp(self, data):
+        """
+        Adds the volt temp data to the current data
+
+        :type data: TdmsFile
+        :param data: mag data file
+        """
+        tdms = data.file
+        for iterate in range(len(self.data)):
+            """ The group name for voltTemp data is
+            the same as xyz as determined by cRio daq """
+            group = 'v32Hz'
+            channel = 'channel %s'%(iterate+1)
+            self.data[iterate] = np.hstack((self.data[iterate],
+                                            tdms.object(group, channel).data))
+        self.time = np.hstack((self.time, 
+                               tdms.object(group, 'sec of day').data))
     def add_f(self, data):
         """
         Adds the ppm data
@@ -326,8 +348,17 @@ class MakeData():
         :type data: TdmsFile
         :param data: ppm data file
         """
+        time = data.file.object('v1sec', 'sec of day').data
         data = data.file.object('v1sec', 'channel 1').data
-        self.data[3] = np.hstack((self.data[3], data))
+ 
+        #print('ppm: ' + str(len(data)))
+        #print('xyz: ' + str(len(self.data[3])))        
+        #self.data[3] = np.hstack((self.data[3],data[:86400]))
+        
+        xyz_time = np.rint(self.time)
+        ppm_time = np.rint(time[:86400])
+        xyz_good = np.where(xyz_time == ppm_time)[0]
+        self.data[3][xyz_good] = data[xyz_good]
 
     def quick_fourier_plot(self, samp_freq): # used for visual debugging
         """:
@@ -348,20 +379,33 @@ class GetTdms():
     and allows the user to call on a group channel pairing
     to recieve its data.
     """
-    def __init__(self, loc, date, hour, ppm=False):
+    def __init__(self, loc, date, hour, ppm=False, voltTemp=False):
 
         if ppm:
-            my_file = ('/home/dcalp/lrt/{0}/Serial/' +
+            my_file = (USER + '/lrt/{0}/Serial/' +
                        '{1}/{0}{1}{2}{3}v1sec.tdms').format(loc, date.y,
                                                             date.m, date.d)
 
+        elif voltTemp:
+            my_file = (USER + '/lrt/{0}/Serial/' +
+                       '{1}/{2}/{0}{1}{2}{3}[{4}]v32HzVoltTemp.tdms').format(loc, date.y,
+                                                                         date.m,
+                                                                         date.d,
+                                                                         hour)
         else:
-            my_file = ('/home/dcalp/lrt/{0}/Serial/' +
-                       '{1}/{0}{1}{2}{3}[{4}]v32Hz.tdms').format(loc, date.y,
+            my_file = (USER + '/lrt/{0}/Analog/' +
+                       '{1}/{0}{1}{2}{3}[{4}]v100Hz.tdms').format(loc, date.y,
                                                                  date.m,
                                                                  date.d,
                                                                  hour)
 
+            """
+            my_file = (USER + '/lrt/{0}/Serial/' +
+                       '{1}/{0}{1}{2}{3}[{4}]v32Hz.tdms').format(loc, date.y,
+                                                                 date.m,
+                                                                 date.d,
+                                                                 hour)
+            """
         self.file = TdmsFile(my_file)
 
     def get_data(self, samp_freq, channel, ppm=False):
@@ -390,6 +434,7 @@ def variance(array):
     array = array - avg
     return array, float('{0:.2f}'.format(avg))
 
+
 def get_std_dev(raw_data, smooth_data, samp_freq, sigma=4.0):
     """ Takes the raw set of data and the time average set
     and records the data points which where sigma times the
@@ -397,7 +442,6 @@ def get_std_dev(raw_data, smooth_data, samp_freq, sigma=4.0):
 
     Args:
     ----
-        raw_data(TdmsFile.object.data): untouched data
         smooth_data(np.array): time averaged data
         samp_freq(int): the number of samples per second of raw_data
         sigma (float): how many std dev away to look for
@@ -417,7 +461,7 @@ def get_std_dev(raw_data, smooth_data, samp_freq, sigma=4.0):
         [np.nan, np.nan],
         *[(num / samp_freq / 60, raw_data[num])
           for num in range(len(smooth_data))
-          if ((raw_data[num] > (smooth_data[num] + (sigma*std))) or
+            if ((raw_data[num] > (smooth_data[num] + (sigma*std))) or
               (raw_data[num] < (smooth_data[num] - (sigma*std))))
          ]]).transpose()
 
@@ -432,6 +476,7 @@ def butter_low_pass(data, desired, original, order=5):
     Args:
     ----
         data (np.array): data to be filtered
+c
         desirerd (int): the cutoff point for data in hz
         original (int): the initial sampling rate in hz
 
@@ -496,5 +541,5 @@ def make_files(year, month, day):
     """
     for loc in ['LRE', 'LRO', 'LRS']:
         subprocess.call(['mkdir', '-p',
-                         (USER + '/cRio-data-reduction/plots/%s/%s/%s/%s'%(
+                         (USER + '/lrtOps/git/crio-data-reduction/plots/%s/%s/%s/%s'%(
                              loc, year, month, day))])

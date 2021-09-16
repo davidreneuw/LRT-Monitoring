@@ -13,11 +13,11 @@ from formatdata import MakeData, Date, Data
 from correctrotation import find_best_scalar, find_best_tri_rot
 
 # Creates logger
-USER = os.path.expanduser('~') + '/git' #git included for local repo
+USER = os.path.expanduser('~')
 date = Date(0)
-logging.filename = (USER + '/crio-data-reduction/log/rt1hz/rt1hz%s%s.log'%(
+logging.filename = (USER + '/lrtOps/git/crio-data-reduction/log/rt1hz/rt1hz%s%s.log'%(
     date.m, date.d))
-logging.config.fileConfig(USER + '/crio-data-reduction/logging.conf')
+logging.config.fileConfig(USER + '/lrtOps/git/crio-data-reduction/logging.conf')
 logger = logging.getLogger('rt1hz')
 
 # fmt2 just takes a number and formats it to two digits before the decimal
@@ -32,6 +32,7 @@ class FailedToCollectDataError(Exception):
 def main(loc='LRE', xback=2):
 
     data = MakeData() # start data class
+    procDate = Date(xback)
 
     #-----COLLECT DATA------#
 
@@ -42,7 +43,6 @@ def main(loc='LRE', xback=2):
         data.add_tdms(loc, date, hour)
 
         chop1 = len(data.data[0]) # used for removing extra days later
-
         logger.info('Got previous Day')
 
     # MAIN DAY
@@ -50,13 +50,7 @@ def main(loc='LRE', xback=2):
             hour = fmt2(hour)
             date = Date(xback)
             data.add_tdms(loc, date, hour)
-            ott = Data('sec', date, 'OTT', 
-                       (USER + '/crio-data-reduction/ottSecData/2018/'))
-
             logger.info('Hour %s fine', hour)
-
-
-        data.add_tdms(loc, date, hour=None, ppm=True)
 
     # NEXT DAY
         temp = len(data.data[0])
@@ -79,27 +73,43 @@ def main(loc='LRE', xback=2):
                      len(data.data[2]), data.data[2]))
 
     sizebefore = len(data.time)
-    data.filtsample(.5, 1*60*60*26, 32)
+    data.filtsample(.5, 1*60*60*26, 100)
     sizeafter = len(data.time)
 
     chop1 = int(round(chop1*sizeafter/sizebefore))
     chop2 = int(round(chop2*sizeafter/sizebefore))
     data.chop(chop1, chop2)
 
+    #print('Filtered Length: ' + str(len(data.time)))
+    
+    ott = Data('sec', procDate, 'OTT', 
+                ('/daqs/geomag_data/real_time/magnetic/' + procDate.y + '/'))
+    data.add_tdms(loc, procDate, hour=None, ppm=True)
     # TODO: Determine is second scalar should be removed
     # Often all terms in second scalr =~ 1
-    data.data[:3] = find_best_scalar(data.data[:3], ott.data[:3],
-                                     return_scaled=True)
-    data.data[:3] = find_best_tri_rot(data.data[:3], ott.data[:3],
-                                      .1, return_rotated=True)
-    data.data[:3] = find_best_scalar(data.data[:3], ott.data[:3],
-                                     return_scaled=True)
+    
+    #print('OTT 1Hz Time  Length: ' + str(len(ott.time)))
+    #print('OTT 1Hz Data  Length: ' + str(len(ott.data[0])))
+
+    """
+    try:
+        data.data[:3] = find_best_scalar(data.data[:3], ott.data[:3],
+                                         return_scaled=True)
+        data.data[:3] = find_best_tri_rot(data.data[:3], ott.data[:3],
+                                          .1, return_rotated=True)
+        data.data[:3] = find_best_scalar(data.data[:3], ott.data[:3],
+                                         return_scaled=True)
+    except ValueError as err:
+        logger.error(err)
+    except:
+        raise
+    """    
 
     #----SAVE DATA-----#
     date2 = Date(xback)
-    file_name = ('/home/dcalp/lrt/' +
-                 '%s/RT1Hz/%s%s%s%svsec.sec'
-                 %(loc, loc, date2.y, date2.m, date2.d))
+    file_name = (USER + '/lrt/' +
+                 '%s/RT1Hz/%s/%s%s%s%svsec.sec'
+                 %(loc,date.y,loc,date2.y,date2.m,date2.d))
     logger.debug(file_name)
     from decimal import Decimal, ROUND_HALF_UP
 
@@ -134,7 +144,7 @@ def main(loc='LRE', xback=2):
     logger.info('Done')
 
 if __name__ == '__main__':
-    for place in ['LRO', 'LRE', 'LRS']:
+    for place in ['LRE','LRS','LRO']:
         try:
             main(loc=place)
         except FailedToCollectDataError as err:

@@ -1,6 +1,5 @@
-plots/**
-lrtRecords/**
-TextFiles/**
-ottSecData/**
-src/savevars.txt
-log/**
+*.log
+/lrtRecords/*.txt
+*.min
+*.sec
+*.png
