@@ -10,11 +10,11 @@ From this github repository click `Clone or download` then click on `Use SSH` co
 
 Now in the terminal type `$ git clone [Copied directory]`
 
-Upon proper installation the file structure should appear as the following 
+Upon proper installation the file structure should appear as the following
 ```
 $HOME
 |-- anaconda3
-|--cRio-data-reduction 
+|--cRio-data-reduction
 |   |-- ottSecData (D)
 |   |-- lrtRecords (D)
 |   |-- logging.conf
@@ -29,7 +29,7 @@ $HOME
 |   |-- bashfiles
 |   |   |-- pulfiles.sh
 |   |   `-- sendEmail.sh
-|   | 
+|   |
 |   |-- plots
 |   |   |-- LRE (D)
 |   |   |-- LRO (D)
@@ -54,7 +54,7 @@ $HOME
     - The linux server may not support a newer version at
                 some point in time
 
-4. Using shell (or any other secure file transfer) move the .sh 
+4. Using shell (or any other secure file transfer) move the .sh
     file to your home directory. In the ssh terminal type:
     `bash Anaconda-5.0.1-Linux-x86_64.sh`
     - Or the extension of the version you installed
@@ -79,9 +79,11 @@ Python 3.6.3 |Anaconda, Inc.| (default, DATE,TIME)
 
 10. Near the end of the file you should see a line which says
        `export PATH`. Edit this line so that it is:
-       ``` PATH="/home/YOURFILE/anaconda3/bin:$PATH"```
+       ```
+       PATH="/home/YOURFILE/anaconda3/bin:$PATH"
+       ```
 
-11. Save the file and exit. 
+11. Save the file and exit.
 
 12. Try step (7.) again
 
@@ -90,7 +92,7 @@ Essentially the installation of anaconda is supposed to add
 this line to your profile on its own, and it does on some
 linux servers. It does not on this one and thus we have to
 do it manually.
-        
+
 ## NPTDMS installation
 
 1. Navigate to:
@@ -98,7 +100,7 @@ do it manually.
 
 2. Download the zip file which should show up as: `npTDMS-master.zip`
 
-2.b. Unzip the file 
+2.b. Unzip the file
 
 3. Move the unziped file to you `/home/YOURFILE` directory
 
@@ -108,7 +110,7 @@ do it manually.
 # Background
 
 By using the package `npTDMS` (an addition to numpy package) we can read the `.tdms` file type.
-The values can be reached refering to a specific node on the tree. A tdms file is broken up into different types of objects; the root object, the group object, and the channel object. 
+The values can be reached refering to a specific node on the tree. A tdms file is broken up into different types of objects; the root object, the group object, and the channel object.
 
 The root object records background info such as file name, title, and author.
 The group and channel objects are related. The group object defines the type ofdata you want to look at (in our case all of the data is either 'v32Hz' or 'v100Hz' group). The channel refers to which record device you wish to look under.
@@ -154,11 +156,11 @@ There are 4 main python scripts:
 
 `rt1hz.py `
 - Uses `formatdata.py` 
-- Reads through 32hz tdms files and creates 1hz files 
+- Reads through 32hz tdms files and creates 1hz files
 
 `recordlrt.py `
 - Uses `formatdata.py ` , `correctrotation.py`
-- Reads through 32hz tdms files and creates a list of times that had   
+- Reads through 32hz tdms files and creates a list of times that had  
   high noise and times of possible interferance 
 - Returns a fair number of false positives and could be refined
 
@@ -170,7 +172,7 @@ There are 4 main python scripts:
 `correctrotation.py`
 - Used by `rt1hz`
 - Attempts to correct missalignment in the lrt sites
-  
+
 ## Manual Usage  
 
 To become accustomed with some of the features built in try running some of the following code:
@@ -207,11 +209,11 @@ Consider looking in the source for more options and experimenting.
 
 
 ## Setup
- 
+
  For an explanation on how to set up anaconda read the text file `ANACONDAINSTALL.txt`
- 
+
  To automate these procedures add the following to you `crontab -e` file
- 
+
  ```
  1 1 * * * [Home]/lrt_data/bashFiles/pullfiles.sh &> [Home]/lrt_data/log/filetransfer.log
 
@@ -222,11 +224,41 @@ Consider looking in the source for more options and experimenting.
 0 */3 * * * [Home]/lrt_data/bashFiles/getLrtData.sh
 
  ```
- 
+
 
 No further editing should be need to have the program begin to run. It is possible that a file directory was not moved
 over to have an abstract location and if this arises it should only need to be edited to the expected formation.
 
+## Development
+
+In order to facilitate the development of this application, a certain set of good practices must be followed. First of all, you can clone this repository locally by running the following command:
+
+```
+git clone http://bitbucket.seismo.nrcan.gc.ca/scm/lrt/crio-data-reduction.git .
+cd crio-data-reduction
+```
+
+This will clone a local instance of the repository to your machine. Afterwards, you must select the development branch:
+
+```
+git checkout development
+```
+
+This branch is used to work on implementing features or fixing bugs. Essentially, all changes should be made on the development branch. You may add changes by editing the files on your local repository, then committing those changes as such:
+
+```
+git commit -m "MESSAGE"
+git push origin development
+```
+
+You can commit as many times as you want before pushing. In addition, make sure to add a proper description of your implemented changes in lieu of MESSAGE. When enough is added and everything that was implemented is thoroughly tested and working, you may merge your changes from the development branch into the master branch:
+
+```
+git checkout master
+git merge development
+```
+
+Once that is done, all changes made onto development will be merged into master. The repository is currently set to always require David Calp's review of merges before actually merging.
 
 ## SSH Connection
 
@@ -239,4 +271,3 @@ SSH connection needs to be made to a few servers however their IP's will not be 
 - LRS
 
 - LRO
-
