@@ -11,13 +11,26 @@ import logging.config
 import os.path
 from formatdata import MakeData, Date, Data
 from correctrotation import find_best_scalar, find_best_tri_rot
+import configparser
+
+# Loading configs
+USER = os.path.expanduser('~')
+config = configparser.ConfigParser()
+config.read('option.conf')
+BASE = config['PATHS']['file_directory']
+IS_DEV = config['DEV']['is_dev']
+LRT_PATH = config['PATHS']['lrt_file_directory']
 
 # Creates logger
-USER = os.path.expanduser('~')
 date = Date(0)
-logging.filename = (USER + '/lrtOps/git/crio-data-reduction/log/rt1hz/rt1hz%s%s.log'%(
+if IS_DEV:
+  date.y="2020"
+  date.m="04"
+  date.d="27"
+  date.j="118"
+logging.filename = (USER + BASE+ '/log/rt1hz/rt1hz%s%s.log'%(
     date.m, date.d))
-logging.config.fileConfig(USER + '/lrtOps/git/crio-data-reduction/logging.conf')
+logging.config.fileConfig(USER + BASE+'/logging.conf')
 logger = logging.getLogger('rt1hz')
 
 # fmt2 just takes a number and formats it to two digits before the decimal
@@ -33,6 +46,11 @@ def main(loc='LRE', xback=2):
 
     data = MakeData() # start data class
     procDate = Date(xback)
+    if IS_DEV:
+      procDate.y="2020"
+      procDate.m="04"
+      procDate.d="25"
+      procDate.j="116"
 
     #-----COLLECT DATA------#
 
@@ -40,6 +58,11 @@ def main(loc='LRE', xback=2):
     try:
         hour = '23'
         date = Date(xback + 1) #day3
+        if IS_DEV:
+          date.y="2020"
+          date.m="04"
+          date.d="24"
+          date.j="115"
         data.add_tdms(loc, date, hour)
 
         chop1 = len(data.data[0]) # used for removing extra days later
@@ -49,6 +72,11 @@ def main(loc='LRE', xback=2):
         for hour in range(24):
             hour = fmt2(hour)
             date = Date(xback)
+            if IS_DEV:
+              date.y="2020"
+              date.m="04"
+              date.d="25"
+              date.j="116"
             data.add_tdms(loc, date, hour)
             logger.info('Hour %s fine', hour)
 
@@ -57,6 +85,11 @@ def main(loc='LRE', xback=2):
 
         hour = '00'
         date = Date(xback - 1)
+        if IS_DEV:
+          date.y="2020"
+          date.m="04"
+          date.d="26"
+          date.j="117"
         data.add_tdms(loc, date, hour)
 
         chop2 = len(data.data[0]) - temp
@@ -82,8 +115,8 @@ def main(loc='LRE', xback=2):
 
     #print('Filtered Length: ' + str(len(data.time)))
     
-    ott = Data('sec', procDate, 'OTT', 
-                ('/daqs/geomag_data/real_time/magnetic/' + procDate.y + '/'))
+    #ott = Data('sec', procDate, 'OTT', 
+    #           ('/daqs/geomag_data/real_time/magnetic/' + procDate.y + '/'))
     data.add_tdms(loc, procDate, hour=None, ppm=True)
     # TODO: Determine is second scalar should be removed
     # Often all terms in second scalr =~ 1
@@ -107,9 +140,14 @@ def main(loc='LRE', xback=2):
 
     #----SAVE DATA-----#
     date2 = Date(xback)
-    file_name = (USER + '/lrt/' +
-                 '%s/RT1Hz/%s/%s%s%s%svsec.sec'
-                 %(loc,date.y,loc,date2.y,date2.m,date2.d))
+    if IS_DEV:
+      date2.y="2020"
+      date2.m="04"
+      date2.d="25"
+      date2.j="116"
+    file_name = (LRT_PATH +
+                 '/%s/RT1Hz/%s/%s%s%s%svsec.sec'
+                 %(loc,date2.y,loc,date2.y,date2.m,date2.d))
     logger.debug(file_name)
     from decimal import Decimal, ROUND_HALF_UP
 

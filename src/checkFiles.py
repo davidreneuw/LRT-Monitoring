@@ -1,4 +1,4 @@
-#!/nrn/home/NRN/dcalp/anaconda3/bin/python
+#!/nrn/home/NRN/drene/anaconda3/bin/python
 import os.path
 import syslog
 import logging
@@ -6,19 +6,29 @@ import logging.config
 from datetime import date, timedelta, datetime
 from pathlib import Path
 import subprocess
+import configparser
 
 USER = os.path.expanduser('~')
+config = configparser.ConfigParser()
+config.read('option.conf')
+BASE = config['PATHS']['file_directory']
+IS_DEV = config['DEV']['is_dev']
+
 # Creates logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 # Gets date
-day = datetime.today().strftime('%d')
-month = datetime.today().strftime('%m')
+if IS_DEV == "True":
+  day = "27"
+  month = "04"
+else:
+  day = datetime.today().strftime('%d')
+  month = datetime.today().strftime('%m')
 
 # Sets handler
 handler = logging.FileHandler(
-        USER + '/lrtOps/git/crio-data-reduction/log/checkfiles/checkfiles%s%s.log'%(month, day)
+        USER + BASE +'/log/checkfiles/checkfiles%s%s.log'%(month, day)
         )
 logger.addHandler(handler)
 
@@ -29,10 +39,17 @@ handler.setFormatter(formatter)
 fmt2 = lambda x : "%02d" % x  #format hours,month,day
 fmt3 = lambda x : "%03d" % x  #format Day of year
 
-yesterday = date.today()-timedelta(1)
-day = yesterday.strftime('%d')
-month = yesterday.strftime('%m')
-year = yesterday.strftime('%Y')
+if IS_DEV == "True":
+  day = "27"
+  month = "04"
+  year = "2020"
+else:
+  yesterday = date.today()-timedelta(1)
+  day = yesterday.strftime('%d')
+  month = yesterday.strftime('%m')
+  year = yesterday.strftime('%Y')
+
+
 
 for loc in ['LRE','LRO','LRS']:
     for hour in range(1,24):

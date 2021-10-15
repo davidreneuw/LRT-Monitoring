@@ -21,10 +21,17 @@ from formatdata import Date, Data, get_std_dev
 
 # Creates logger
 USER = expanduser('~')
+config = cp.ConfigParser()
+config.read('option.conf')
+BASE = config['PATHS']['file_directory']
+IS_DEV = config['DEV']['is_dev']
+LRT_PATH = config['PATHS']['lrt_file_directory']
 date = Date(0)
-logging.filename = (USER + '/lrtOps/git/crio-data-reduction/log/recordlrt/recordlrt%s%s.log'%(
+if IS_DEV:
+  date.y, date.m, date.d, date.j = "2020", "04", "25", "116"
+logging.filename = (USER + BASE+'/log/recordlrt/recordlrt%s%s.log'%(
         date.m,date.d))
-logging.config.fileConfig(USER + '/lrtOps/git/crio-data-reduction/logging.conf')
+logging.config.fileConfig(USER + BASE + '/logging.conf')
 logger = logging.getLogger('recordlrt')
 
 fmt2 = lambda x: "%02d" % x  #format hours,month,day
@@ -34,11 +41,11 @@ fmt3 = lambda x: "%03d" % x  #format Day of year
 class Config(): #customization options
     def __init__(self, date, samp_freq):
         self.config = cp.RawConfigParser()
-        self.config.read((USER + '/lrtOps/git/crio-data-reduction/option.conf'))
+        self.config.read((USER + BASE+ '/option.conf'))
         self.samp_freq = samp_freq
         self.date = date
-        self.save = expanduser(self.config.get('RECORD', 'save_dir'))
-        self.lrt_dir = expanduser(self.config.get('RECORD', 'lrt_dir'))
+        self.save = USER+BASE+"/lrtRecords/"
+        self.lrt_dir = USER+ self.config.get('RECORD', 'lrt_dir')
         self.dir = None
 
     def direc(self, loc):
@@ -54,6 +61,8 @@ def main(xback=2):
     times which were very active
     """
     date = Date(xback)
+    if IS_DEV:
+      date.y, date.m, date.d, date.j = "2020", "04", "25", "116"
     time = 10
     group = 32
     cfg = Config(date, 32)

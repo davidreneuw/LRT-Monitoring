@@ -25,8 +25,13 @@ import pandas as pd
 from nptdms import TdmsFile
 from scipy import signal
 import logging
+import configparser
 
 USER = os.path.expanduser('~')
+config = configparser.ConfigParser()
+config.read('option.conf')
+BASE = config['PATHS']['file_directory']
+LRT_PATH = config['PATHS']['lrt_file_directory']
 
 class UnknownFileType(Exception):
     pass
@@ -139,13 +144,13 @@ class Data():
                         data_frame.z,
                         data_frame.f]
         else:
-            self.file = TdmsFile(self.file)
-            time = self.file.object(self.filetype, 'sec of day').data/60
+            self.file = TdmsFile.read(self.file)
+            time = self.file[self.filetype]['sec of day'].data/60
             self.time = time-int(self.hour)*60
-            self.raw = [self.file.object(self.filetype, 'channel 1').data,
-                        self.file.object(self.filetype, 'channel 2').data,
-                        self.file.object(self.filetype, 'channel 3').data,
-                        self.file.object(self.filetype, 'channel 4').data]
+            self.raw = [self.file[self.filetype]['channel 1'].data,
+                        self.file[self.filetype]['channel 2'].data,
+                        self.file[self.filetype]['channel 3'].data,
+                        self.file[self.filetype]['channel 4'].data]
 
         self.ppm = self.raw[3]
         self.data = self.raw.copy()
@@ -320,9 +325,9 @@ class MakeData():
             group = 'v100Hz'
             channel = 'channel %s'%(iterate+1)
             self.data[iterate] = np.hstack((self.data[iterate],
-                                            tdms.object(group, channel).data))
+                                            tdms[group][channel].data))
         self.time = np.hstack((self.time, 
-                               tdms.object(group, 'sec of day').data))
+                               tdms[group]['sec of day'].data))
 
     def add_voltTemp(self, data):
         """
@@ -338,9 +343,9 @@ class MakeData():
             group = 'v32Hz'
             channel = 'channel %s'%(iterate+1)
             self.data[iterate] = np.hstack((self.data[iterate],
-                                            tdms.object(group, channel).data))
+                                            tdms[group][channel].data))
         self.time = np.hstack((self.time, 
-                               tdms.object(group, 'sec of day').data))
+                               tdms[group]['sec of day'].data))
     def add_f(self, data):
         """
         Adds the ppm data
@@ -348,8 +353,8 @@ class MakeData():
         :type data: TdmsFile
         :param data: ppm data file
         """
-        time = data.file.object('v1sec', 'sec of day').data
-        data = data.file.object('v1sec', 'channel 1').data
+        time = data.file['v1sec']['sec of day'].data
+        data = data.file['v1sec']['channel 1'].data
  
         #print('ppm: ' + str(len(data)))
         #print('xyz: ' + str(len(self.data[3])))        
@@ -382,31 +387,36 @@ class GetTdms():
     def __init__(self, loc, date, hour, ppm=False, voltTemp=False):
 
         if ppm:
-            my_file = (USER + '/lrt/{0}/Serial/' +
+            my_file = (LRT_PATH + '/{0}/Serial/' +
                        '{1}/{0}{1}{2}{3}v1sec.tdms').format(loc, date.y,
                                                             date.m, date.d)
 
         elif voltTemp:
-            my_file = (USER + '/lrt/{0}/Serial/' +
+            my_file = (LRT_PATH + '/{0}/Serial/' +
                        '{1}/{2}/{0}{1}{2}{3}[{4}]v32HzVoltTemp.tdms').format(loc, date.y,
                                                                          date.m,
                                                                          date.d,
                                                                          hour)
         else:
-            my_file = (USER + '/lrt/{0}/Analog/' +
+            print((LRT_PATH + '/{0}/Analog/' +
+                       '{1}/{0}{1}{2}{3}[{4}]v100Hz.tdms').format(loc, date.y,
+                                                                 date.m,
+                                                                 date.d,
+                                                                 hour))
+            my_file = (LRT_PATH + '/{0}/Analog/' +
                        '{1}/{0}{1}{2}{3}[{4}]v100Hz.tdms').format(loc, date.y,
                                                                  date.m,
                                                                  date.d,
                                                                  hour)
 
             """
-            my_file = (USER + '/lrt/{0}/Serial/' +
+            my_file = (LRT_PATH + '/{0}/Serial/' +
                        '{1}/{0}{1}{2}{3}[{4}]v32Hz.tdms').format(loc, date.y,
                                                                  date.m,
                                                                  date.d,
                                                                  hour)
             """
-        self.file = TdmsFile(my_file)
+        self.file = TdmsFile.read(my_file)
 
     def get_data(self, samp_freq, channel, ppm=False):
         """Returns the data for a channel group selected"""
@@ -415,7 +425,7 @@ class GetTdms():
         else:
             group = ('v' + str(samp_freq) + 'Hz')
         channel = ('channel ' + str(channel))
-        return self.file.object(group, channel).data
+        return self.file[group][channel].data
 
 
 def rate_of_change(data, samp_freq):
@@ -541,5 +551,5 @@ def make_files(year, month, day):
     """
     for loc in ['LRE', 'LRO', 'LRS']:
         subprocess.call(['mkdir', '-p',
-                         (USER + '/lrtOps/git/crio-data-reduction/plots/%s/%s/%s/%s'%(
+                         (USER + BASE + '/plots/%s/%s/%s/%s'%(
                              loc, year, month, day))])

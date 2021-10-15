@@ -3,3 +3,5 @@
 *.min
 *.sec
 *.png
+*.gz
+option.conf

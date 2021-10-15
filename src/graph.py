@@ -36,10 +36,17 @@ from formatdata import Data, Date, make_files
 
 # Creates logger
 USER=expanduser('~')
+config = cp.ConfigParser()
+config.read('option.conf')
+BASE = config['PATHS']['file_directory']
+IS_DEV = config['DEV']['is_dev']
+LRT_PATH = config['PATHS']['lrt_file_directory']
 date_log = Date(1)
-logging.filename = (USER + '/lrtOps/git/crio-data-reduction/log/graphing/graphing%s%s.log'%(
+if IS_DEV:
+  date_log.y, date_log.m, date_log.d, date_log.j = "2020", "04", "25", "116"
+logging.filename = (USER + BASE+'/log/graphing/graphing%s%s.log'%(
     date_log.m, date_log.d))
-logging.config.fileConfig(USER + '/lrtOps/git/crio-data-reduction/logging.conf')
+logging.config.fileConfig(USER + BASE+'/logging.conf')
 logger = logging.getLogger('graphing')
 
 #------CLASSES----#
@@ -51,7 +58,7 @@ class Config(): #customization options
     """Contains attributes and methods related to file specifics"""
     def __init__(self, date, loc, samp_freq, hour):
         self.config = cp.RawConfigParser()
-        self.config.read((USER + '/lrtOps/git/crio-data-reduction/option.conf'))
+        self.config.read((USER + BASE+'/option.conf'))
         self.loc = loc
         self.size = (self.config.getint('GRAPH', 'size_x'), 
                      self.config.getint('GRAPH', 'size_y')) #size of plot
@@ -81,7 +88,7 @@ class Config(): #customization options
         if mode == 'sec':
             direc = (self.config.get('GRAPH', 'sec_dir').format(date.y))
         if mode == 'secNew':
-            direc = (self.config.get('GRAPH', 'secNew_dir').format(self.loc))
+            direc = (self.config.get('GRAPH', 'secNew_dir').format(self.loc, date.y))
         if mode == 'v32Hz':
             direc = (self.config.get('GRAPH', 'v32Hz_dir').format(self.loc,
                                                                 date.y))
@@ -144,22 +151,22 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
 
     #----DATA COLLECTION----#
 
-    try:
-        ott = Data('sec', date, 'OTT', config.direc('sec', date), hour=hour)
-        logger.info('Got OTT data')
-    except FileNotFoundError:
-        raise FailedToCollectDataError('Could not find: OTT sec data. ' +
-                                       '%s\\%s\\%s Hour:%s'
-                                       %(date.y, date.m, date.d, hour))
+    #try:
+    ott = Data('sec', date, 'OTT', config.direc('sec', date), hour=hour)
+    logger.info('Got OTT data')
+    #except FileNotFoundError:
+    #    raise FailedToCollectDataError('Could not find: OTT sec data. ' +
+    #                                   '%s\\%s\\%s Hour:%s'
+    #                                   %(date.y, date.m, date.d, hour))
 
-    try:
-        lrt = Data(mode, date, loc, config.direc(mode, date), hour=hour)
-        logger.info('Got LRT data')
-    except FileNotFoundError as err:
-        raise FailedToCollectDataError('Could not find: %s %s data. '
-                                       %(loc, mode) +
-                                       '%s\\%s\\%s Hour:%s'
-                                       %(date.y, date.m, date.d, hour))
+    #try:
+    lrt = Data(mode, date, loc, config.direc(mode, date), hour=hour)
+    logger.info('Got LRT data')
+    #except FileNotFoundError as err:
+    #    raise FailedToCollectDataError('Could not find: %s %s data. '
+    #                                   %(loc, mode) +
+    #                                   '%s\\%s\\%s Hour:%s'
+    #                                   %(date.y, date.m, date.d, hour))
     # Apply all data maniplulation needed
     # TODO: Make options for different data manipulations
     lrt.fstar()
@@ -260,6 +267,8 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
 def __auto__(xback=2):
 
     date2 = Date(xback)
+    if IS_DEV:
+      date2.y, date2.m, date2.d, date2.j = "2020", "04", "25", "116"
 
     start_time = time.time()
 
@@ -278,7 +287,7 @@ def __auto__(xback=2):
             logger.error(err)
     #---HOURPLOT---#
     try:
-        hourly_times_file = (USER + '/lrtOps/git/crio-data-reduction/lrtRecords/lrtRecords%s%s.txt'
+        hourly_times_file = (USER + BASE+'/lrtRecords/lrtRecords%s%s.txt'
             %(date2.m, date2.d))
         if os.path.isfile(hourly_times_file):
             hourly_times = pd.read_csv(hourly_times_file, sep=' ')
