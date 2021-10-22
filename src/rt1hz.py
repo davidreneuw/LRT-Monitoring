@@ -16,14 +16,14 @@ import configparser
 # Loading configs
 USER = os.path.expanduser('~')
 config = configparser.ConfigParser()
-config.read('option.conf')
+config.read(USER+'/crio-data-reduction/option.conf')
 BASE = config['PATHS']['file_directory']
 IS_DEV = config['DEV']['is_dev']
 LRT_PATH = config['PATHS']['lrt_file_directory']
 
 # Creates logger
 date = Date(0)
-if IS_DEV:
+if IS_DEV == "True":
   date.y="2020"
   date.m="04"
   date.d="27"
@@ -46,7 +46,7 @@ def main(loc='LRE', xback=2):
 
     data = MakeData() # start data class
     procDate = Date(xback)
-    if IS_DEV:
+    if IS_DEV == "True":
       procDate.y="2020"
       procDate.m="04"
       procDate.d="25"
@@ -58,7 +58,7 @@ def main(loc='LRE', xback=2):
     try:
         hour = '23'
         date = Date(xback + 1) #day3
-        if IS_DEV:
+        if IS_DEV=="True":
           date.y="2020"
           date.m="04"
           date.d="24"
@@ -72,7 +72,7 @@ def main(loc='LRE', xback=2):
         for hour in range(24):
             hour = fmt2(hour)
             date = Date(xback)
-            if IS_DEV:
+            if IS_DEV=="True":
               date.y="2020"
               date.m="04"
               date.d="25"
@@ -85,7 +85,7 @@ def main(loc='LRE', xback=2):
 
         hour = '00'
         date = Date(xback - 1)
-        if IS_DEV:
+        if IS_DEV=="True":
           date.y="2020"
           date.m="04"
           date.d="26"
@@ -140,13 +140,13 @@ def main(loc='LRE', xback=2):
 
     #----SAVE DATA-----#
     date2 = Date(xback)
-    if IS_DEV:
+    if IS_DEV=="True":
       date2.y="2020"
       date2.m="04"
       date2.d="25"
       date2.j="116"
-    file_name = (LRT_PATH +
-                 '/%s/RT1Hz/%s/%s%s%s%svsec.sec'
+    file_name = (USER + 
+                 '/lrt/%s/RT1Hz/%s/%s%s%s%svsec.sec'
                  %(loc,date2.y,loc,date2.y,date2.m,date2.d))
     logger.debug(file_name)
     from decimal import Decimal, ROUND_HALF_UP

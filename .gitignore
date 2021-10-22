@@ -5,3 +5,4 @@
 *.png
 *.gz
 option.conf
+/src/__pycache__/*

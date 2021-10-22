@@ -37,12 +37,12 @@ from formatdata import Data, Date, make_files
 # Creates logger
 USER=expanduser('~')
 config = cp.ConfigParser()
-config.read('option.conf')
+config.read(USER+'/crio-data-reduction/option.conf')
 BASE = config['PATHS']['file_directory']
 IS_DEV = config['DEV']['is_dev']
 LRT_PATH = config['PATHS']['lrt_file_directory']
 date_log = Date(1)
-if IS_DEV:
+if IS_DEV=="True":
   date_log.y, date_log.m, date_log.d, date_log.j = "2020", "04", "25", "116"
 logging.filename = (USER + BASE+'/log/graphing/graphing%s%s.log'%(
     date_log.m, date_log.d))
@@ -151,22 +151,22 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
 
     #----DATA COLLECTION----#
 
-    #try:
-    ott = Data('sec', date, 'OTT', config.direc('sec', date), hour=hour)
-    logger.info('Got OTT data')
-    #except FileNotFoundError:
-    #    raise FailedToCollectDataError('Could not find: OTT sec data. ' +
-    #                                   '%s\\%s\\%s Hour:%s'
-    #                                   %(date.y, date.m, date.d, hour))
+    try:
+      ott = Data('sec', date, 'OTT', config.direc('sec', date), hour=hour)
+      logger.info('Got OTT data')
+    except FileNotFoundError:
+        raise FailedToCollectDataError('Could not find: OTT sec data. ' +
+                                       '%s\\%s\\%s Hour:%s'
+                                       %(date.y, date.m, date.d, hour))
 
-    #try:
-    lrt = Data(mode, date, loc, config.direc(mode, date), hour=hour)
-    logger.info('Got LRT data')
-    #except FileNotFoundError as err:
-    #    raise FailedToCollectDataError('Could not find: %s %s data. '
-    #                                   %(loc, mode) +
-    #                                   '%s\\%s\\%s Hour:%s'
-    #                                   %(date.y, date.m, date.d, hour))
+    try:
+      lrt = Data(mode, date, loc, config.direc(mode, date), hour=hour)
+      logger.info('Got LRT data')
+    except FileNotFoundError as err:
+        raise FailedToCollectDataError('Could not find: %s %s data. '
+                                       %(loc, mode) +
+                                       '%s\\%s\\%s Hour:%s'
+                                       %(date.y, date.m, date.d, hour))
     # Apply all data maniplulation needed
     # TODO: Make options for different data manipulations
     lrt.fstar()
@@ -267,7 +267,7 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
 def __auto__(xback=2):
 
     date2 = Date(xback)
-    if IS_DEV:
+    if IS_DEV=="True":
       date2.y, date2.m, date2.d, date2.j = "2020", "04", "25", "116"
 
     start_time = time.time()

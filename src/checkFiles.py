@@ -10,7 +10,7 @@ import configparser
 
 USER = os.path.expanduser('~')
 config = configparser.ConfigParser()
-config.read('option.conf')
+config.read(USER+'/crio-data-reduction/option.conf')
 BASE = config['PATHS']['file_directory']
 IS_DEV = config['DEV']['is_dev']
 

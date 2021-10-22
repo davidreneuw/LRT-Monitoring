@@ -22,12 +22,12 @@ from formatdata import Date, Data, get_std_dev
 # Creates logger
 USER = expanduser('~')
 config = cp.ConfigParser()
-config.read('option.conf')
+config.read(USER+'/crio-data-reduction/option.conf')
 BASE = config['PATHS']['file_directory']
 IS_DEV = config['DEV']['is_dev']
 LRT_PATH = config['PATHS']['lrt_file_directory']
 date = Date(0)
-if IS_DEV:
+if IS_DEV=="True":
   date.y, date.m, date.d, date.j = "2020", "04", "25", "116"
 logging.filename = (USER + BASE+'/log/recordlrt/recordlrt%s%s.log'%(
         date.m,date.d))
@@ -45,7 +45,7 @@ class Config(): #customization options
         self.samp_freq = samp_freq
         self.date = date
         self.save = USER+BASE+"/lrtRecords/"
-        self.lrt_dir = USER+ self.config.get('RECORD', 'lrt_dir')
+        self.lrt_dir = LRT_PATH+self.config.get('RECORD', 'lrt_dir')
         self.dir = None
 
     def direc(self, loc):
@@ -61,7 +61,8 @@ def main(xback=2):
     times which were very active
     """
     date = Date(xback)
-    if IS_DEV:
+    print(date)
+    if IS_DEV=="True":
       date.y, date.m, date.d, date.j = "2020", "04", "25", "116"
     time = 10
     group = 32

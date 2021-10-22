@@ -29,7 +29,7 @@ import configparser
 
 USER = os.path.expanduser('~')
 config = configparser.ConfigParser()
-config.read('option.conf')
+config.read(USER+'/crio-data-reduction/option.conf')
 BASE = config['PATHS']['file_directory']
 LRT_PATH = config['PATHS']['lrt_file_directory']
 
@@ -398,11 +398,6 @@ class GetTdms():
                                                                          date.d,
                                                                          hour)
         else:
-            print((LRT_PATH + '/{0}/Analog/' +
-                       '{1}/{0}{1}{2}{3}[{4}]v100Hz.tdms').format(loc, date.y,
-                                                                 date.m,
-                                                                 date.d,
-                                                                 hour))
             my_file = (LRT_PATH + '/{0}/Analog/' +
                        '{1}/{0}{1}{2}{3}[{4}]v100Hz.tdms').format(loc, date.y,
                                                                  date.m,
