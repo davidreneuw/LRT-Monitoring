@@ -244,7 +244,25 @@ This will clone a local instance of the repository to your machine. Afterwards, 
 git checkout development
 ```
 
-This branch is used to work on implementing features or fixing bugs. Essentially, all changes should be made on the development branch. You may add changes by editing the files on your local repository, then committing those changes as such:
+This branch is used to work on implementing features or fixing bugs. Essentially, all changes should be made on the development branch. In order to test your changes, you will have to run everything in development mode. To do so, make sure you open the option.conf file and change the is_dev value to True (`is_dev = True`). In addition, you need to ensure that all paths in the config file are correct. Here is a description of what each value in the config file mean:
+
+[Paths]
+`file_directory`: Path from home folder to crio-data-reduction folder (most likely simply `/crio-data-reduction`).
+`lrt_file_directory`: Path to the folder of list of LRT locations, on ssh.seismo: `/lrt/lrt`.
+[Record]
+`save_dir`: Path from base folder to lrtRecords folder (most likely simply `/lrtRecords/`)
+`lrt_dir`: Should be as `/{0}/Serial/{1}/`
+[Plots]
+`save_dir`: Path to the plots folder (normally `/plots/`)
+`size_x`: Should be 15
+`size_y`: Should be 15
+`sigma_dev`: Should be 4.0
+`sec_dir`: Full path to ottSecData folder (normally `$HOME/crio-data-reduction/ottSecData/{0}/`)
+`secNew_dir`: Full path to the RT1Hz folder (normally `/lrt/lrt/{0}/RT1Hz/{1}/`)
+`v32Hz_dir`: Full path to the 32Hz folder (normally `/lrt/lrt/{0}/Serial/{1}/`)
+`is_dev`: False or True, depending on if you are developping.
+
+Once you have properly updated the option.conf file, you may add changes to the code by editing the files on your local repository, then committing those changes as such:
 
 ```
 git commit -m "MESSAGE"
