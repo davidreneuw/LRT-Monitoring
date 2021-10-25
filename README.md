@@ -262,7 +262,7 @@ This branch is used to work on implementing features or fixing bugs. Essentially
 `v32Hz_dir`: Full path to the 32Hz folder (normally `/lrt/lrt/{0}/Serial/{1}/`)
 `is_dev`: False or True, depending on if you are developping.
 
-Once you have properly updated the option.conf file, you may add changes to the code by editing the files on your local repository, then committing those changes as such:
+Once you have properly updated the option.conf file, you also need to go through all bash files to make sure that the paths are all correct. You may now add changes to the code by editing the files on your local repository, then committing those changes as such:
 
 ```
 git commit -m "MESSAGE"
