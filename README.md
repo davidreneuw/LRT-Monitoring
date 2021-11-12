@@ -3,6 +3,10 @@ Andrew Kovachik
 Cell: 226-228-6957
 Email: kovachik.andrew@gmail.com
 
+![System architecture diagram.](/LRT.png)
+<!-- Here is a link to this diagram: https://lucid.app/lucidchart/671ca3df-638b-41e0-ba3b-db330ff0b61d/edit?invitationId=inv_46ce8883-d2b3-4490-b171-2c59bcdc5aa7
+Please make sure to edit it as you make modifications.-->
+
 # Installation
 On a linux server navigate to the home directory
 

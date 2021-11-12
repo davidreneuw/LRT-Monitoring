@@ -324,6 +324,11 @@ def __auto__(xback=2):
 
         print('--- %s seconds ---'%(time.time() - start_time))
         lastday += delta
+    
+    with open(USER+BASE+'/log/lastday.txt', 'w') as f:
+        f.write(date2.d+"-"+date2.m+"-"+date2.y)
 
 if __name__ == "__main__":
     __auto__()
+    
+    

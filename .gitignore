@@ -2,7 +2,7 @@
 /lrtRecords/*.txt
 *.min
 *.sec
-*.png
+/plots/*.png
 *.gz
 option.conf
 /src/__pycache__/*
