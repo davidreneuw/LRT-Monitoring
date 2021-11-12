@@ -30,6 +30,7 @@ import pandas as pd
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+import datetime
 # Custom packages
 from formatdata import Data, Date, make_files
 
@@ -265,55 +266,64 @@ def plot(mode, loc, date, samp_freq, hour=None, ffstar=False):
     logger.info('Plot completed and saved to %s', config.save)
 
 def __auto__(xback=2):
-
+    with open(USER+BASE+'/log/lastday.txt') as f:
+        data = f.readlines()[0]
+        lst = data.split("-")
+        lastday = datetime.date(int(lst[2]), int(lst[1]), int(lst[0]))
+    delta = datetime.timedelta(1)
+    
     date2 = Date(xback)
     if IS_DEV=="True":
-      date2.y, date2.m, date2.d, date2.j = "2020", "04", "25", "116"
+      date2.y, date2.m, date2.d, date2.j, date2.dateObj = "2020", "04", "25", "116", datetime.date(2020, 4, 25)
+    
+    while lastday <= date2.dateObj and not (lastday > date2.dateObj):
+        cdate = Date(1)
+        cdate.d, cdate.m, cdate.y = lastday.year, lastday.month, lastday.day
+        start_time = time.time()
 
-    start_time = time.time()
+        # creates file directory for plots
+        make_files(cdate.y,
+                cdate.m,
+                cdate.d
+                )
 
-    # creates file directory for plots
-    make_files(date2.y,
-               date2.m,
-               date2.d
-              )
-
-    #---DAYPLOT---#
-    for loc in ['LRE', 'LRO', 'LRS']:
-        try:
-            plot('secNew', loc, date2, 1, ffstar=True)
-
-        except FailedToCollectDataError as err:
-            logger.error(err)
-    #---HOURPLOT---#
-    try:
-        hourly_times_file = (USER + BASE+'/lrtRecords/lrtRecords%s%s.txt'
-            %(date2.m, date2.d))
-        if os.path.isfile(hourly_times_file):
-            hourly_times = pd.read_csv(hourly_times_file, sep=' ')
-            hourly_times.drop(['YYYY', 'MM', 'DD', 'MI', 'D', 'MAG'], axis=1)
-            # All that remains is HH and LOC
-            hourly_times.drop_duplicates()
-        else:
-            raise FailedToCollectDataError('FailedToCollectDataError: ' +
-                                           'Could not find "%s"'
-                                           %hourly_times_file)
-    except FailedToCollectDataError as err:
-        logger.error(err)
-
-    else:
-        for iterate in range(len(hourly_times)):
+        #---DAYPLOT---#
+        for loc in ['LRE', 'LRO', 'LRS']:
             try:
-                plot('v32Hz',
-                     hourly_times.iloc[iterate].LOC,
-                     date2,
-                     32,
-                     hour=int(hourly_times.iloc[iterate].HH)
-                    )
+                plot('secNew', loc, cdate, 1, ffstar=True)
+
             except FailedToCollectDataError as err:
                 logger.error(err)
+        #---HOURPLOT---#
+        try:
+            hourly_times_file = (USER + BASE+'/lrtRecords/lrtRecords%s%s.txt'
+                %(cdate.m, cdate.d))
+            if os.path.isfile(hourly_times_file):
+                hourly_times = pd.read_csv(hourly_times_file, sep=' ')
+                hourly_times.drop(['YYYY', 'MM', 'DD', 'MI', 'D', 'MAG'], axis=1)
+                # All that remains is HH and LOC
+                hourly_times.drop_duplicates()
+            else:
+                raise FailedToCollectDataError('FailedToCollectDataError: ' +
+                                            'Could not find "%s"'
+                                            %hourly_times_file)
+        except FailedToCollectDataError as err:
+            logger.error(err)
 
-    print('--- %s seconds ---'%(time.time() - start_time))
+        else:
+            for iterate in range(len(hourly_times)):
+                try:
+                    plot('v32Hz',
+                        hourly_times.iloc[iterate].LOC,
+                        cdate,
+                        32,
+                        hour=int(hourly_times.iloc[iterate].HH)
+                        )
+                except FailedToCollectDataError as err:
+                    logger.error(err)
+
+        print('--- %s seconds ---'%(time.time() - start_time))
+        lastday += delta
 
 if __name__ == "__main__":
     __auto__()

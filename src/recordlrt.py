@@ -7,17 +7,18 @@ Natural Resources Canada
 This program will take tdms files in the one hour format
 and output a text file for when there was activity
 """
+import configparser as cp
 # Default Packages
 import logging
 import logging.config
 import os.path
+from datetime import timedelta
 from os.path import expanduser
-import configparser as cp
-from datetime import datetime
+import datetime
 # Third Party Packages
 import numpy as np
 # Custom Packages
-from formatdata import Date, Data, get_std_dev
+from formatdata import Data, Date, get_std_dev
 
 # Creates logger
 USER = expanduser('~')
@@ -60,65 +61,73 @@ def main(xback=2):
     Goes through the past day of data and creates a file for the
     times which were very active
     """
+    
+    with open(USER+BASE+'/log/lastday.txt') as f:
+        data = f.readlines()[0]
+        lst = data.split("-")
+        lastday = datetime.date(int(lst[2]), int(lst[1]), int(lst[0]))
+    delta = timedelta(1)
     date = Date(xback)
-    print(date)
+    
     if IS_DEV=="True":
-      date.y, date.m, date.d, date.j = "2020", "04", "25", "116"
+        date.y, date.m, date.d, date.j, date.dateObj = "2020", "04", "25", "116", datetime.date(2020, 4, 25)
     time = 10
     group = 32
     cfg = Config(date, 32)
 
+    while lastday >= date.dateObj and not (lastday > date.dateObj):
+        cdate = Date(1)
+        cdate.d, cdate.m, cdate.y = lastday.year, lastday.month, lastday.day
+        file_name = (cfg.save + 'lrtRecords%s%s.txt'%(cdate.m, cdate.d))
+        logger.info('Working on file: %s', file_name)
 
+        with open(file_name, 'w', 1) as data_base:
+            data_base.write('YYYY MM DD HH MI LOC D MAG\n')
 
-    file_name = (cfg.save + 'lrtRecords%s%s.txt'%(date.m, date.d))
-    logger.info('Working on file: %s', file_name)
+        for loc in ['LRE', 'LRO', 'LRS']:
+            for hour in range(24):
+                try:
+                    cfg.direc(loc)
 
-    with open(file_name, 'w', 1) as data_base:
-        data_base.write('YYYY MM DD HH MI LOC D MAG\n')
+                    logger.info('Opening file %s%s%s%s[%s]v%sHz.tdms',
+                                loc, cdate.y, cdate.m,
+                                cdate.d, fmt2(hour), group)
 
-    for loc in ['LRE', 'LRO', 'LRS']:
-        for hour in range(24):
-            try:
-                cfg.direc(loc)
+                    data = Data('v32Hz', cfg.date, cfg.loc,
+                                cfg.dir, hour=fmt2(hour))
 
-                logger.info('Opening file %s%s%s%s[%s]v%sHz.tdms',
-                            loc, date.y, date.m,
-                            date.d, fmt2(hour), group)
+                    data.make_smooth(time)
+                    rough = data.raw 
+                    smooth = data.data
 
-                data = Data('v32Hz', cfg.date, cfg.loc,
-                            cfg.dir, hour=fmt2(hour))
+                    logger.info('Opened file %s%s%s%s[%s]v%sHz.tdms',
+                                loc, cdate.y, cdate.m,
+                                cdate.d, fmt2(hour), group)
 
-                data.make_smooth(time)
-                rough = data.raw 
-                smooth = data.data
+                    for channel in range(4):
+                        spikes = get_std_dev(
+                            rough[channel],
+                            smooth[channel],
+                            group
+                        )
 
-                logger.info('Opened file %s%s%s%s[%s]v%sHz.tdms',
-                            loc, date.y, date.m,
-                            date.d, fmt2(hour), group)
+                        if np.any(spikes):
+                            record_data(spikes[0], loc, date, 
+                                        fmt2(hour), channel, file_name)
 
-                for channel in range(4):
-                    spikes = get_std_dev(
-                        rough[channel],
-                        smooth[channel],
-                        group
-                    )
+                except FileNotFoundError:
+                    logger.warning('File Not Found %s%s%s%s[%s]v%sHz.tdms \
+                            Continuing to next file. ',
+                                loc, cdate.y, cdate.m, cdate.d, fmt2(hour), group)
 
-                    if np.any(spikes):
-                        record_data(spikes[0], loc, date, 
-                                    fmt2(hour), channel, file_name)
-
-            except FileNotFoundError:
-                logger.warning('File Not Found %s%s%s%s[%s]v%sHz.tdms \
-                        Continuing to next file. ',
-                               loc, date.y, date.m, date.d, fmt2(hour), group)
-
-            except ValueError:
-                logger.error('File is corrupted empty or missing array \
-                        for data %s%s%s%s[%s]v%sHz.tdms. ',
-                             loc, date.y, date.m,
-                             date.d, fmt2(hour), group)
-            except:
-                raise
+                except ValueError:
+                    logger.error('File is corrupted empty or missing array \
+                            for data %s%s%s%s[%s]v%sHz.tdms. ',
+                                loc, cdate.y, cdate.m,
+                                cdate.d, fmt2(hour), group)
+                except:
+                    raise
+        lastday += delta
 
 
 def record_data(data, loc, date, hour, channel, file_name):

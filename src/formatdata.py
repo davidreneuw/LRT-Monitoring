@@ -47,6 +47,7 @@ class Date():
         self.m = fmt2(int(date.strftime('%m')))
         self.j = fmt3(int(date.strftime('%j')))
         self.y = date.strftime('%Y')
+        self.dateObj = date.date()
 
 class Data():
     """

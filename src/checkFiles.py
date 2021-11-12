@@ -12,6 +12,7 @@ USER = os.path.expanduser('~')
 config = configparser.ConfigParser()
 config.read(USER+'/crio-data-reduction/option.conf')
 BASE = config['PATHS']['file_directory']
+LRT_PATH = config['PATHS']['lrt_file_directory']
 IS_DEV = config['DEV']['is_dev']
 
 # Creates logger
@@ -43,34 +44,42 @@ if IS_DEV == "True":
   day = "27"
   month = "04"
   year = "2020"
+  yesterday = date(int(year), int(month), int(day))
 else:
   yesterday = date.today()-timedelta(1)
-  day = yesterday.strftime('%d')
-  month = yesterday.strftime('%m')
-  year = yesterday.strftime('%Y')
+  
 
+with open(USER+BASE+'/log/lastday.txt') as f:
+  data = f.readlines()[0]
+  lst = data.split("-")
+  lastday = date(int(lst[2]), int(lst[1]), int(lst[0]))
+delta = timedelta(1)
 
-
-for loc in ['LRE','LRO','LRS']:
-    for hour in range(1,24):
-        my_file = Path(
-                USER + '/lrt/%s/Analog/%s/%s%s%s%s[%s]v100Hz.tdms'
-                %(loc, year, loc, year, month, day, fmt2(hour))
-                )
-
-        if my_file.exists() == False:
-            logger.warning(
-                    'File not found for %s%s%s%s[%s]v100Hz.tdms'
-                    %(loc, year, month, day, fmt2(hour))
-                    )
-
-
-    my_file = Path(
-            USER + '/lrt/%s/Serial/%s/%s%s%s%sv1sec.tdms'
-            %(loc, year, loc, year, month, day))
-
-    if my_file.exists() == False:
-        logger.warning(
-                'File not found for %s%s%s%sv1sec.tdms'
-                %(loc, year, month, day)
-                )
+while lastday <= yesterday:
+  day = lastday.strftime('%d')
+  month = lastday.strftime('%m')
+  year = lastday.strftime('%Y')
+  for loc in ['LRE','LRO','LRS']:
+      for hour in range(1,24):
+          my_file = Path(
+                  LRT_PATH + '/%s/Analog/%s/%s%s%s%s[%s]v100Hz.tdms'
+                  %(loc, year, loc, year, month, day, fmt2(hour))
+                  )
+  
+          if my_file.exists() == False:
+              logger.warning(
+                      'File not found for %s%s%s%s[%s]v100Hz.tdms'
+                      %(loc, year, month, day, fmt2(hour))
+                      )
+  
+  
+      my_file = Path(
+              LRT_PATH + '/%s/Serial/%s/%s%s%s%sv1sec.tdms'
+              %(loc, year, loc, year, month, day))
+  
+      if my_file.exists() == False:
+          logger.warning(
+                  'File not found for %s%s%s%sv1sec.tdms'
+                  %(loc, year, month, day)
+                  )
+  lastday += delta
