@@ -1,6 +1,8 @@
 #!/bin/bash
 date1="`date '+%m%d'`"
-date2="`date -d "1 day ago" '+%m%d'`"
+echo $date1
+date2="`date -d "2 days ago" '+%m%d'`"
+echo $date2
 test -s $HOME/crio-data-reduction/log/checkfiles/checkfiles$date1.log && cat $HOME/crio-data-reduction/log/checkfiles/checkfiles$date1.log |mail -s "Error: Missing Files" david.rene@nrcan-rncan.gc.ca
 
 test -s $HOME/crio-data-reduction/log/graphing/graphing$date1.log && cat $HOME/crio-data-reduction/log/graphing/graphing$date1.log | mail -s "Graph Log" david.rene@nrcan-rncan.gc.ca

@@ -23,7 +23,7 @@ config.read(USER+'/crio-data-reduction/option.conf')
 BASE = config['PATHS']['file_directory']
 IS_DEV = config['DEV']['is_dev']
 LRT_PATH = config['PATHS']['lrt_file_directory']
-
+SAVE_DIR = config['GRAPH']['secNew_dir']
 # Creates logger
 date = Date(0)
 if IS_DEV == "True":
@@ -76,6 +76,7 @@ def main(loc='LRE', xback=2):
       chop1 = len(data.data[0]) # used for removing extra days later
       logger.info('Got previous Day')
     except FileNotFoundError:
+      chop1 = len(data.data[0])
       logger.warning('FailedToCollectDataError: ' + 'File for {}/{}/{} hour: {} location: {} not found'.format(dayObj.y, dayObj.m, dayObj.d, hour, loc))
   
     # MAIN DAY
@@ -101,6 +102,7 @@ def main(loc='LRE', xback=2):
       chop2 = len(data.data[0]) - temp
       logger.info('Got next Day')
     except FileNotFoundError:
+      chop2 = len(data.data[0]) - temp
       logger.warning('FailedToCollectDataError: ' + 'File for {}/{}/{} hour: {} location: {} not found'.format(dayObj.y, dayObj.m, dayObj.d, hour, loc))
       
   
@@ -124,7 +126,10 @@ def main(loc='LRE', xback=2):
       #           ('/daqs/geomag_data/real_time/magnetic/' + procDate.y + '/'))
       dayObj = Date(1)
       [dayObj.y, dayObj.m, dayObj.d] = [lastday.year, lastday.month, lastday.day]
-      data.add_tdms(loc, dayObj, hour=None, ppm=True)
+      try:
+        data.add_tdms(loc, dayObj, hour=None, ppm=True)
+      except:
+        logger.warning("Could not add v1sec data.")
       # TODO: Determine is second scalar should be removed
       # Often all terms in second scalr =~ 1
         
@@ -148,40 +153,39 @@ def main(loc='LRE', xback=2):
       logger.error("Could not format data. Not enough data.") 
   
     #----SAVE DATA-----#
-    try:
-      date2 = lastday
-      file_name = (LRT_PATH + 
-                    '/%s/RT1Hz/%s/%s%s%s%svsec.sec'
-                    %(loc,date2.y,loc,date2.y,date2.m,date2.d))
-      logger.debug(file_name)
+    #try:
     
-      with open(file_name, 'w', 1) as data_base:
-        logger.debug('Making database for day')
-        for iterate, time in enumerate(data.time):
-          time = Decimal(time)
-          time = Decimal(time.quantize(Decimal('.001'), rounding=ROUND_HALF_UP))
-          time, mili = divmod(time, 1)
-          minute, second = divmod(time, 60)
-          hour, minute = divmod(minute, 60)
-          hour = hour%24
-          mili = str(mili).split('.')
-          time = "%02d:%02d:%02d:%s" % (hour, minute, second, mili[1])
-          data_base.write('%s-%s-%s %s %s    %s %s %s %s\n'
-          %(
-                                    date2.y,
-                                    date2.m,
-                                    date2.d,
-                                    time,
-                                    date2.j,
-                                    '%.2f'%data.data[0][iterate],
-                                    '%.2f'%data.data[1][iterate],
-                                    '%.2f'%data.data[2][iterate],
-                                    '%.2f'%data.data[3][iterate])
-                              )
-    
-      logger.info('Done')
-    except:
-      logger.error("Could not save data.")
+    file_name = ('/nrn/home/NRN/drene/lrt/%s/RT1Hz/%s/%s%s%s%svsec.sec'
+                  %(loc,dayObj.y,loc,dayObj.y,dayObj.m,dayObj.d))
+    logger.debug(file_name)
+  
+    with open(file_name, 'w', 1) as data_base:
+      logger.debug('Making database for day')
+      for iterate, time in enumerate(data.time):
+        time = Decimal(time)
+        time = Decimal(time.quantize(Decimal('.001'), rounding=ROUND_HALF_UP))
+        time, mili = divmod(time, 1)
+        minute, second = divmod(time, 60)
+        hour, minute = divmod(minute, 60)
+        hour = hour%24
+        mili = str(mili).split('.')
+        time = "%02d:%02d:%02d:%s" % (hour, minute, second, mili[1])
+        data_base.write('%s-%s-%s %s %s    %s %s %s %s\n'
+        %(
+                                  dayObj.y,
+                                  dayObj.m,
+                                  dayObj.d,
+                                  time,
+                                  dayObj.j,
+                                  '%.2f'%data.data[0][iterate],
+                                  '%.2f'%data.data[1][iterate],
+                                  '%.2f'%data.data[2][iterate],
+                                  '%.2f'%data.data[3][iterate])
+                            )
+  
+    logger.info('Done')
+    #except:
+    #  logger.error("Could not save data.")
     lastday += delta
     
 

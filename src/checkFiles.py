@@ -60,13 +60,13 @@ while lastday <= yesterday:
   month = lastday.strftime('%m')
   year = lastday.strftime('%Y')
   for loc in ['LRE','LRO','LRS']:
-      for hour in range(1,24):
+      for hour in range(0,24):
           my_file = Path(
                   LRT_PATH + '/%s/Analog/%s/%s%s%s%s[%s]v100Hz.tdms'
                   %(loc, year, loc, year, month, day, fmt2(hour))
                   )
   
-          if my_file.exists() == False:
+          if not my_file.exists():
               logger.warning(
                       'File not found for %s%s%s%s[%s]v100Hz.tdms'
                       %(loc, year, month, day, fmt2(hour))
@@ -77,7 +77,7 @@ while lastday <= yesterday:
               LRT_PATH + '/%s/Serial/%s/%s%s%s%sv1sec.tdms'
               %(loc, year, loc, year, month, day))
   
-      if my_file.exists() == False:
+      if not my_file.exists():
           logger.warning(
                   'File not found for %s%s%s%sv1sec.tdms'
                   %(loc, year, month, day)

@@ -75,9 +75,9 @@ def main(xback=2):
     group = 32
     cfg = Config(date, 32)
 
-    while lastday >= date.dateObj and not (lastday > date.dateObj):
+    while lastday <= date.dateObj and not (lastday > date.dateObj):
         cdate = Date(1)
-        cdate.d, cdate.m, cdate.y = lastday.year, lastday.month, lastday.day
+        cdate.y, cdate.m, cdate.d = lastday.year, lastday.month, lastday.day
         file_name = (cfg.save + 'lrtRecords%s%s.txt'%(cdate.m, cdate.d))
         logger.info('Working on file: %s', file_name)
 
@@ -112,7 +112,7 @@ def main(xback=2):
                         )
 
                         if np.any(spikes):
-                            record_data(spikes[0], loc, date, 
+                            record_data(spikes[0], loc, cdate, 
                                         fmt2(hour), channel, file_name)
 
                 except FileNotFoundError:

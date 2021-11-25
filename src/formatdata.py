@@ -140,10 +140,10 @@ class Data():
                 self.time = data_frame.time/60
             else:
                 self.time = data_frame.time/3600
-            self.raw = [data_frame.x,
-                        data_frame.y,
-                        data_frame.z,
-                        data_frame.f]
+            self.raw = [pd.to_numeric(data_frame.x, errors='coerce'),
+                        pd.to_numeric(data_frame.y, errors='coerce'),
+                        pd.to_numeric(data_frame.z, errors='coerce'),
+                        pd.to_numeric(data_frame.f, errors='coerce')]
         else:
             self.file = TdmsFile.read(self.file)
             time = self.file[self.filetype]['sec of day'].data/60
@@ -253,12 +253,16 @@ class Data():
             self.Fstar = self.Fstar[chop1:-chop2]
 
     def fstar(self):
-        """Creates the estimated F and saves the old one under raw"""
+        """Creates the estimated F and saves the old one under raw"""        
+        
         self.data[3] = np.sqrt(self.data[0]**2 +
                                self.data[1]**2 +
                                self.data[2]**2)
-
+        
         self.fstar = self.data[3]
+        
+
+        
 
     def ffstar(self):
         """Returns a numpy array of f-f*"""

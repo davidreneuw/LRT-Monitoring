@@ -278,7 +278,7 @@ def __auto__(xback=2):
     
     while lastday <= date2.dateObj and not (lastday > date2.dateObj):
         cdate = Date(1)
-        cdate.d, cdate.m, cdate.y = lastday.year, lastday.month, lastday.day
+        cdate.y, cdate.m, cdate.d = lastday.year, lastday.month, lastday.day
         start_time = time.time()
 
         # creates file directory for plots
@@ -326,7 +326,7 @@ def __auto__(xback=2):
         lastday += delta
     
     with open(USER+BASE+'/log/lastday.txt', 'w') as f:
-        f.write(date2.d+"-"+date2.m+"-"+date2.y)
+        f.write(date_log.d+"-"+date_log.m+"-"+date_log.y)
 
 if __name__ == "__main__":
     __auto__()
