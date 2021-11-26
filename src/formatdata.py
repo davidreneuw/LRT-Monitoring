@@ -140,10 +140,10 @@ class Data():
                 self.time = data_frame.time/60
             else:
                 self.time = data_frame.time/3600
-            self.raw = [pd.to_numeric(data_frame.x, errors='coerce'),
-                        pd.to_numeric(data_frame.y, errors='coerce'),
-                        pd.to_numeric(data_frame.z, errors='coerce'),
-                        pd.to_numeric(data_frame.f, errors='coerce')]
+            self.raw = [pd.to_numeric(data_frame.x, errors='coerce').fillna(99999.00),
+                        pd.to_numeric(data_frame.y, errors='coerce').fillna(99999.00),
+                        pd.to_numeric(data_frame.z, errors='coerce').fillna(99999.00),
+                        pd.to_numeric(data_frame.f, errors='coerce').fillna(99999.00)]
         else:
             self.file = TdmsFile.read(self.file)
             time = self.file[self.filetype]['sec of day'].data/60

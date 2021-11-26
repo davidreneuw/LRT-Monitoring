@@ -155,8 +155,8 @@ def main(loc='LRE', xback=2):
     #----SAVE DATA-----#
     #try:
     
-    file_name = ('/nrn/home/NRN/drene/lrt/%s/RT1Hz/%s/%s%s%s%svsec.sec'
-                  %(loc,dayObj.y,loc,dayObj.y,dayObj.m,dayObj.d))
+    file_name = (LRT_PATH+'/%s/RT1Hz/%s/%s%s%02d%02dvsec.sec'
+                  %(loc,dayObj.y,loc,dayObj.y,int(dayObj.m),int(dayObj.d)))
     logger.debug(file_name)
   
     with open(file_name, 'w', 1) as data_base:
