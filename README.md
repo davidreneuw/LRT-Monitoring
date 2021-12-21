@@ -1,28 +1,18 @@
 # cRio-data-reduction
 ## Table of contents
-1. [Installation](#1-installation)
-   
+1. [Installation](#1-installation) 
    1.1 [Anaconda Installation](#11-anaconda-installation)
-
    1.2 [NPTDMS Installation](#12-nptdms-installation) 
 2. [Background](#2-background)
-
     2.1 [Python Scripts Overview](#21-python-scripts-overview)
-- [cRio-data-reduction](#crio-data-reduction)
-  - [Table of contents](#table-of-contents)
-  - [1. Installation](#1-installation)
-    - [1.1 Anaconda installation](#11-anaconda-installation)
-    - [1.2 NPTDMS installation](#12-nptdms-installation)
-- [2. Background](#2-background)
-  - [2.1 Python scripts overview](#21-python-scripts-overview)
-  - [3. Manual Usage](#3-manual-usage)
-  - [4. Automation Setup](#4-automation-setup)
-  - [5. Development](#5-development)
-  - [6. Production Deployment](#6-production-deployment)
-  - [7. Config File setup](#7-config-file-setup)
-  - [8. Catch-up Feature](#8-catch-up-feature)
-  - [9. SSH Connection](#9-ssh-connection)
-  - [10. Contacts](#10-contacts)
+3. [Manual Usage](#3-manual-usage)
+4. [Automation Setup](#4-automation-setup)
+5. [Development](#5-development)
+6. [Production Deployment](#6-production-deployment)
+7. [Config File setup](#7-config-file-setup)
+8. [Catch-up Feature](#8-catch-up-feature)
+9. [SSH Connection](#9-ssh-connection)
+10. [Contacts](#10-contacts)
 
 ## 1. Installation
 
