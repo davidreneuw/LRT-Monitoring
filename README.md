@@ -26,7 +26,7 @@
 
 ## 1. Installation
 
-![System architecture diagram.](/assets/LRT.png)
+![System architecture diagram.](./assets/LRT.png)
 <!-- Here is a link to this diagram: https://lucid.app/lucidchart/671ca3df-638b-41e0-ba3b-db330ff0b61d/edit?invitationId=inv_46ce8883-d2b3-4490-b171-2c59bcdc5aa7
 Please make sure to edit it as you make modifications.-->
 
@@ -265,7 +265,7 @@ over to have an abstract location and if this arises it should only need to be e
 
 ## 5. Development
 
-![Development Operations](/assets/devops.png)
+![Development Operations](./assets/devops.png)
 
 In order to facilitate the development of this application, a certain set of good practices must be followed. First of all, you can clone this repository locally by running the following command:
 
