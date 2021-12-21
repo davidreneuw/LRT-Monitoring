@@ -180,7 +180,7 @@ Specifics:
 -100Hz files are in the Analog folder
 
 <a name="21-python-scripts-overview"></a>
-## 2.1 Python scripts overview
+### 2.1 Python scripts overview
 
 There are 5 main python scripts:
 
