@@ -19,6 +19,7 @@
 9. [SSH Connection](#9-ssh-connection)
 10. [Contacts](#10-contacts)
 
+<a name="1-installation"></a>
 ## 1. Installation
 
 ![System architecture diagram.](./assets/LRT.png)
