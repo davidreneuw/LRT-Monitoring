@@ -50,6 +50,8 @@ logging.filename = (USER + BASE+'/log/graphing/graphing%s%s.log'%(
 logging.config.fileConfig(USER + BASE+'/logging.conf')
 logger = logging.getLogger('graphing')
 
+fmt2 = lambda x: "%02d" % x
+
 #------CLASSES----#
 
 class FailedToCollectDataError(Exception):
@@ -279,6 +281,7 @@ def __auto__(xback=2):
     while lastday <= date2.dateObj and not (lastday > date2.dateObj):
         cdate = Date(1)
         cdate.y, cdate.m, cdate.d = lastday.year, lastday.month, lastday.day
+        print(cdate.m, cdate.d)
         start_time = time.time()
 
         # creates file directory for plots

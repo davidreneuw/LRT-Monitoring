@@ -121,7 +121,6 @@ def main(loc='LRE', xback=2):
       data.chop(chop1, chop2)
     
       #print('Filtered Length: ' + str(len(data.time)))
-        
       #ott = Data('sec', procDate, 'OTT', 
       #           ('/daqs/geomag_data/real_time/magnetic/' + procDate.y + '/'))
       dayObj = Date(1)
@@ -129,7 +128,7 @@ def main(loc='LRE', xback=2):
       try:
         data.add_tdms(loc, dayObj, hour=None, ppm=True)
       except:
-        logger.warning("Could not add v1sec data.")
+        logger.warning("Could not add v1sec data for {}/{}/{}, location: {}, file not found.".format(dayObj.y, dayObj.m, dayObj.d, loc))
       # TODO: Determine is second scalar should be removed
       # Often all terms in second scalr =~ 1
         

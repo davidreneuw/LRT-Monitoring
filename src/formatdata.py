@@ -284,8 +284,10 @@ class MakeData():
         self.time = self.time[chop1:-chop2]
 
     def add_tdms(self, loc, date, hour, ppm=False, voltTemp=False):
-
+        date.d = fmt2(date.d)
+        date.m = fmt2(date.m)
         datafile = GetTdms(loc, date, hour, ppm, voltTemp)
+        
         if ppm:
             self.add_f(datafile)
         elif voltTemp:
@@ -318,6 +320,7 @@ class MakeData():
         
         self.time = self.time[::cnt] 
         self.time = self.time[:desr_freq]
+        
     def add_xyz(self, data):
         """
         Adds the mag data to the current data

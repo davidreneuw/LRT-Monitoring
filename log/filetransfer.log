@@ -1,15 +1,15 @@
 retrieving data from OTT 
 sending incremental file list
-OTT2021323.min.gz
-OTT2021323.sec.gz
-OTT2021329.min
-OTT2021329.min.gz
-OTT2021329.sec
-OTT2021329.sec.gz
-OTT2021330.min
-OTT2021330.min.gz
-OTT2021330.sec
-OTT2021330.sec.gz
+OTT2021348.min.gz
+OTT2021348.sec.gz
+OTT2021354.min
+OTT2021354.min.gz
+OTT2021354.sec
+OTT2021354.sec.gz
+OTT2021355.min
+OTT2021355.min.gz
+OTT2021355.sec
+OTT2021355.sec.gz
 
-sent 2,185,444 bytes  received 214 bytes  624,473.71 bytes/sec
-total size is 284,869,468  speedup is 130.34
+sent 2,406,390 bytes  received 214 bytes  1,604,402.67 bytes/sec
+total size is 303,387,982  speedup is 126.06
