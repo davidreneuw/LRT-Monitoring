@@ -1,10 +1,15 @@
 # cRio-data-reduction
 ## Table of contents
 1. [Installation](#1-installation) 
+
    1.1 [Anaconda Installation](#11-anaconda-installation)
+   
    1.2 [NPTDMS Installation](#12-nptdms-installation) 
+   
 2. [Background](#2-background)
+
     2.1 [Python Scripts Overview](#21-python-scripts-overview)
+    
 3. [Manual Usage](#3-manual-usage)
 4. [Automation Setup](#4-automation-setup)
 5. [Development](#5-development)
