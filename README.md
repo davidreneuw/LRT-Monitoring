@@ -1,13 +1,35 @@
-My contact info if you have questions or concerns
-Andrew Kovachik
-Cell: 226-228-6957
-Email: kovachik.andrew@gmail.com
+# cRio-data-reduction
+## Table of contents
+1. [Installation](#1-installation)
+   
+   1.1 [Anaconda Installation](#11-anaconda-installation)
 
-![System architecture diagram.](LRT.png)
+   1.2 [NPTDMS Installation](#12-nptdms-installation) 
+2. [Background](#2-background)
+
+    2.1 [Python Scripts Overview](#21-python-scripts-overview)
+- [cRio-data-reduction](#crio-data-reduction)
+  - [Table of contents](#table-of-contents)
+  - [1. Installation](#1-installation)
+    - [1.1 Anaconda installation](#11-anaconda-installation)
+    - [1.2 NPTDMS installation](#12-nptdms-installation)
+- [2. Background](#2-background)
+  - [2.1 Python scripts overview](#21-python-scripts-overview)
+  - [3. Manual Usage](#3-manual-usage)
+  - [4. Automation Setup](#4-automation-setup)
+  - [5. Development](#5-development)
+  - [6. Production Deployment](#6-production-deployment)
+  - [7. Config File setup](#7-config-file-setup)
+  - [8. Catch-up Feature](#8-catch-up-feature)
+  - [9. SSH Connection](#9-ssh-connection)
+  - [10. Contacts](#10-contacts)
+
+## 1. Installation
+
+![System architecture diagram.](/assets/LRT.png)
 <!-- Here is a link to this diagram: https://lucid.app/lucidchart/671ca3df-638b-41e0-ba3b-db330ff0b61d/edit?invitationId=inv_46ce8883-d2b3-4490-b171-2c59bcdc5aa7
 Please make sure to edit it as you make modifications.-->
 
-# Installation
 On a linux server navigate to the home directory
 
 From this github repository click `Clone or download` then click on `Use SSH` copy the link
@@ -30,8 +52,14 @@ $HOME
 |   |   |-- rt1hz.py
 |   |   `-- graph.py
 |   |
+|   |-- correctRotation
+|   |   |-- correctRotation.py
+|   |   `-- correctRotation.sh
+|   |
 |   |-- bashfiles
-|   |   |-- pulfiles.sh
+|   |   |-- pullfiles.sh
+|   |   |-- dataRoutines.sh
+|   |   |-- getLrtData.sh
 |   |   `-- sendEmail.sh
 |   |
 |   |-- plots
@@ -44,9 +72,11 @@ $HOME
 |   |   |-- graphing (D)
 |   |   |-- filestransfer (D)
 |   |   `-- checkfiles (D)
+|   |
+|   `-- assets (D)
 ```
 
-## Anaconda installation
+### 1.1 Anaconda installation
 
 1. Go to https://repo.continuum.io/
     - This is the anaconda home page
@@ -70,11 +100,11 @@ $HOME
 
 7. Reopen the terminal and type `python`
    -You should see something similar to:
-```
-bash-4.2$ python
-Python 3.6.3 |Anaconda, Inc.| (default, DATE,TIME)
-```
-   -type `quit()` to leave this process
+    ```
+    bash-4.2$ python
+    Python 3.6.3 |Anaconda, Inc.| (default, DATE,TIME)
+    ```
+    -type `quit()` to leave this process
 
 8. If you did not see Anaconda, Inc. and instead saw that was
    missing or perhaps python you have a few more steps to follow.
@@ -91,27 +121,27 @@ Python 3.6.3 |Anaconda, Inc.| (default, DATE,TIME)
 
 12. Try step (7.) again
 
-8-12. EXPLAINED:
-Essentially the installation of anaconda is supposed to add
-this line to your profile on its own, and it does on some
-linux servers. It does not on this one and thus we have to
-do it manually.
+    8-12. EXPLAINED:
+    Essentially the installation of anaconda is supposed to add
+    this line to your profile on its own, and it does on some
+    linux servers. It does not on this one and thus we have to
+    do it manually.
 
-## NPTDMS installation
+### 1.2 NPTDMS installation
 
 1. Navigate to:
     https://github.com/adamreeve/npTDMS
 
 2. Download the zip file which should show up as: `npTDMS-master.zip`
 
-2.b. Unzip the file
+3. Unzip the file
 
-3. Move the unziped file to you `/home/YOURFILE` directory
+4. Move the unziped file to you `/home/YOURFILE` directory
 
-4. Navigate into the `npTDMS-master` folder and type:
+5. Navigate into the `npTDMS-master` folder and type:
     `python setup.py install`
 
-# Background
+# 2. Background
 
 By using the package `npTDMS` (an addition to numpy package) we can read the `.tdms` file type.
 The values can be reached refering to a specific node on the tree. A tdms file is broken up into different types of objects; the root object, the group object, and the channel object.
@@ -150,9 +180,9 @@ Specifics:
 
 -100Hz files are in the Analog folder
 
-## Python scripts overview
+## 2.1 Python scripts overview
 
-There are 4 main python scripts:
+There are 5 main python scripts:
 
 `formatdata.py`
 - Includes the classes for collecting, compiling and altering data 
@@ -177,7 +207,7 @@ There are 4 main python scripts:
 - Used by `rt1hz`
 - Attempts to correct missalignment in the lrt sites
 
-## Manual Usage  
+## 3. Manual Usage  
 
 To become accustomed with some of the features built in try running some of the following code:
 
@@ -212,7 +242,7 @@ data.avg[0]
 Consider looking in the source for more options and experimenting.
 
 
-## Setup
+## 4. Automation Setup
 
  For an explanation on how to set up anaconda read the text file `ANACONDAINSTALL.txt`
 
@@ -233,7 +263,9 @@ Consider looking in the source for more options and experimenting.
 No further editing should be need to have the program begin to run. It is possible that a file directory was not moved
 over to have an abstract location and if this arises it should only need to be edited to the expected formation.
 
-## Development
+## 5. Development
+
+![Development Operations](/assets/devops.png)
 
 In order to facilitate the development of this application, a certain set of good practices must be followed. First of all, you can clone this repository locally by running the following command:
 
@@ -241,14 +273,55 @@ In order to facilitate the development of this application, a certain set of goo
 git clone http://bitbucket.seismo.nrcan.gc.ca/scm/lrt/crio-data-reduction.git .
 cd crio-data-reduction
 ```
-
 This will clone a local instance of the repository to your machine. Afterwards, you must select the development branch:
-
 ```
 git checkout development
 ```
+Then, to obtain test datasets, run:
+```
+bash bashFiles/pulldevfiles.sh
+```
+You may have to make modifications to pulldevfiles.sh in order to specify the correct directories. Next, you must edit the config file properly, see [Config File setup](#7-config-file-setup) below. In addition, you should look through the bash files (specifically sendEmail.sh) to make sure they are using the correct user information (email, etc.).
 
-This branch is used to work on implementing features or fixing bugs. Essentially, all changes should be made on the development branch. In order to test your changes, you will have to run everything in development mode. To do so, make sure you open the option.conf file and change the is_dev value to True (`is_dev = True`). In addition, you need to ensure that all paths in the config file are correct. Here is a description of what each value in the config file mean:
+The development branch is used to work on implementing features or fixing bugs. Essentially, all changes should be made on the development branch. In order to test your changes, you will have to run everything in development mode. To do so, make sure you open the option.conf file and change the is_dev value to True (`is_dev = True`).
+
+You may now add changes to the code by editing the files on your local repository, then committing those changes as such:
+
+```
+git commit -m "MESSAGE"
+git pull
+git push
+```
+
+You can commit as many times as you want before pulling/pushing. In addition, make sure to add a proper description of your implemented changes in lieu of MESSAGE. When enough is added and everything that was implemented is thoroughly tested and working, you may merge your changes from the development branch into the master branch:
+
+```
+git checkout master
+git merge development
+```
+
+Once that is done, all changes made onto development will be merged into master. 
+
+## 6. Production Deployment
+
+This section details the steps needed to set up a running instance of this tool that acts on the operational dataset.
+1. First, clone this repository:
+    ```
+    git clone http://bitbucket.seismo.nrcan.gc.ca/scm/lrt/crio-data-reduction.git .
+    cd crio-data-reduction
+    ```
+2. Then update the config file (/crio-data-reduction/option.conf) in order to follow the recommendations in the [config file setup section](#7-config-file-setup).
+3. Go through the bash files (pullfiles.sh, getLrtData.sh, dataRoutines.sh, sendEmail.sh) in order to make sure all the user information such as email addresses are correct.
+4. Follow the [automation setup](#4-automation-setup).
+
+After these steps are done, the tool should be running fully automatically.
+
+
+## 7. Config File setup
+
+The config file is located in /cRio-data-reduction/option.conf
+
+Here are the recommended settings:
 
 [Paths]
 
@@ -278,25 +351,13 @@ This branch is used to work on implementing features or fixing bugs. Essentially
 
 `v32Hz_dir`: Full path to the 32Hz folder (normally `/lrt/lrt/{0}/Serial/{1}/`)
 
-`is_dev`: False or True, depending on if you are developping.
+`is_dev`: False or True, depending on if you are developping. Should be False for the production build.
 
-Once you have properly updated the option.conf file, you also need to go through all bash files to make sure that the paths are all correct. You may now add changes to the code by editing the files on your local repository, then committing those changes as such:
+## 8. Catch-up Feature
 
-```
-git commit -m "MESSAGE"
-git push origin development
-```
+All the data routines are programmed to run daily, but it is possible to have them run from a certain day onward: this allows someone to run the tool from a specific day onward. To do so, one can simply edit the file named `lastday.txt` located in `crio-data-reductio/log/`. The date inserted should be in the format DD-MM-YYYY. Once the tool has succesfully ran from that day onward, it will modify this date to be today's date.
 
-You can commit as many times as you want before pushing. In addition, make sure to add a proper description of your implemented changes in lieu of MESSAGE. When enough is added and everything that was implemented is thoroughly tested and working, you may merge your changes from the development branch into the master branch:
-
-```
-git checkout master
-git merge development
-```
-
-Once that is done, all changes made onto development will be merged into master. The repository is currently set to always require David Calp's review of merges before actually merging.
-
-## SSH Connection
+## 9. SSH Connection
 
 SSH connection needs to be made to a few servers however their IP's will not be listed here. The list of servers used by the programs on default are listed below.
 
@@ -307,3 +368,11 @@ SSH connection needs to be made to a few servers however their IP's will not be 
 - LRS
 
 - LRO
+
+## 10. Contacts
+
+David Calp, Supervisor: david.calp@nrcan-rncan.gc.ca / 613-295-4226
+
+Andrew Kovachik, Student: kovachik.andrew@gmail.com / 226-228-6957
+
+David Rene, Student (F21): davrene11@gmail.com / 581-986-4960
