@@ -72,6 +72,7 @@ $HOME
 |   `-- assets (D)
 ```
 
+<a name="11-anaconda-installation"></a>
 ### 1.1 Anaconda installation
 
 1. Go to https://repo.continuum.io/
@@ -123,6 +124,7 @@ $HOME
     linux servers. It does not on this one and thus we have to
     do it manually.
 
+<a name="12-nptdms-installation"></a>
 ### 1.2 NPTDMS installation
 
 1. Navigate to:
@@ -137,6 +139,7 @@ $HOME
 5. Navigate into the `npTDMS-master` folder and type:
     `python setup.py install`
 
+<a name="2-background"></a>
 # 2. Background
 
 By using the package `npTDMS` (an addition to numpy package) we can read the `.tdms` file type.
@@ -176,6 +179,7 @@ Specifics:
 
 -100Hz files are in the Analog folder
 
+<a name="21-python-scripts-overview"></a>
 ## 2.1 Python scripts overview
 
 There are 5 main python scripts:
@@ -203,6 +207,7 @@ There are 5 main python scripts:
 - Used by `rt1hz`
 - Attempts to correct missalignment in the lrt sites
 
+<a name="3-manual-usage"></a>
 ## 3. Manual Usage  
 
 To become accustomed with some of the features built in try running some of the following code:
@@ -237,7 +242,7 @@ data.avg[0]
 ```
 Consider looking in the source for more options and experimenting.
 
-
+<a name="4-automation-setup"></a>
 ## 4. Automation Setup
 
  For an explanation on how to set up anaconda read the text file `ANACONDAINSTALL.txt`
@@ -259,6 +264,7 @@ Consider looking in the source for more options and experimenting.
 No further editing should be need to have the program begin to run. It is possible that a file directory was not moved
 over to have an abstract location and if this arises it should only need to be edited to the expected formation.
 
+<a name="5-development"></a>
 ## 5. Development
 
 ![Development Operations](./assets/devops.png)
@@ -298,6 +304,7 @@ git merge development
 
 Once that is done, all changes made onto development will be merged into master. 
 
+<a name="6-production-deployment"></a>
 ## 6. Production Deployment
 
 This section details the steps needed to set up a running instance of this tool that acts on the operational dataset.
@@ -312,7 +319,7 @@ This section details the steps needed to set up a running instance of this tool 
 
 After these steps are done, the tool should be running fully automatically.
 
-
+<a name="7-config-file-setup"></a>
 ## 7. Config File setup
 
 The config file is located in /cRio-data-reduction/option.conf
@@ -349,10 +356,12 @@ Here are the recommended settings:
 
 `is_dev`: False or True, depending on if you are developping. Should be False for the production build.
 
+<a name="8-catch-up-feature"></a>
 ## 8. Catch-up Feature
 
 All the data routines are programmed to run daily, but it is possible to have them run from a certain day onward: this allows someone to run the tool from a specific day onward. To do so, one can simply edit the file named `lastday.txt` located in `crio-data-reductio/log/`. The date inserted should be in the format DD-MM-YYYY. Once the tool has succesfully ran from that day onward, it will modify this date to be today's date.
 
+<a name="9-ssh-connection"></a>
 ## 9. SSH Connection
 
 SSH connection needs to be made to a few servers however their IP's will not be listed here. The list of servers used by the programs on default are listed below.
@@ -365,6 +374,7 @@ SSH connection needs to be made to a few servers however their IP's will not be 
 
 - LRO
 
+<a name="10-contacts"></a>
 ## 10. Contacts
 
 David Calp, Supervisor: david.calp@nrcan-rncan.gc.ca / 613-295-4226
